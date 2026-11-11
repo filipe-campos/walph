@@ -44,7 +44,7 @@ jobs:
 
       - name: Coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: coverage/
@@ -74,7 +74,7 @@ jobs:
 
       - name: Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results-linux-${{ matrix.shard }}
           path: test-results/
@@ -121,7 +121,7 @@ jobs:
 
       - name: Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results-${{ matrix.os }}
           path: test-results/
@@ -151,7 +151,7 @@ jobs:
 
       - name: Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-results-packaged
           path: test-results/
