@@ -49,6 +49,7 @@
           <img src="assets/walph-logo.svg" alt="Walph" width="114" height="28" />
         </a>
         <nav class="nav" aria-label="Main">
+          <a href="#highlights">Why Walph</a>
           <a href="#features">Features</a>
           <a href="#download">Download</a>
           <a href="#support">Support</a>
@@ -71,9 +72,8 @@
           <p class="eyebrow">Free and open source</p>
           <h1>A desktop IDE with <span class="grad">Claude Code</span> built in</h1>
           <p class="lead">
-            Walph puts the Claude Code agent right next to your editor, terminal and Git. It sees your diagnostics and
-            selection, proposes edits as diffs you accept or reject, and keeps working in background workspaces while
-            you move on.
+            Run Claude Code in every project at once. Walph keeps all your workspaces on one screen, tells you when an
+            agent finishes or needs you, and puts the agent right next to your editor, terminal and Git.
           </p>
 
           <div class="downloads" id="download">
@@ -107,7 +107,8 @@
           </div>
           <p class="fine-print">
             macOS (Apple silicon), Windows installer and Linux (AppImage, deb). The agent panel uses your own Claude
-            account or Anthropic API key; everything else works without it. The interface is in Brazilian Portuguese.
+            account or Anthropic API key; everything else works without it. The interface is in English, Brazilian
+            Portuguese and Spanish.
           </p>
         </div>
 
@@ -117,9 +118,82 @@
               src="assets/hero.jpg"
               width="2400"
               height="1500"
-              alt="Walph with a TypeScript file open, the file explorer, the terminal and the Claude Code panel side by side"
+              alt="Walph with four workspaces in one window: Claude Code is working in one, finished in another and waiting for you in a third, while you keep coding in the first"
             />
           </figure>
+        </div>
+      </section>
+
+      <section class="highlights" id="highlights" aria-labelledby="highlights-title">
+        <div class="container">
+          <h2 id="highlights-title">What makes Walph different</h2>
+          <p class="section-lead">Built for working with agents in many projects at the same time.</p>
+
+          <article class="highlight">
+            <div class="highlight-text">
+              <span class="highlight-index">01</span>
+              <h3>Every workspace on the same screen</h3>
+              <p>
+                Open all your projects as tabs in one window. Each tab shows the folder, its branch, its
+                <code>⌘1…⌘9</code> shortcut and what Claude Code is doing there (working, finished, waiting for you or
+                failed), so you can see the state of every project at a glance. Each workspace keeps its own explorer,
+                terminals, git, language servers and Claude sessions, and switching between them loses nothing.
+              </p>
+            </div>
+            <figure class="shot highlight-shot">
+              <img
+                src="assets/workspace-bar.png"
+                width="1748"
+                height="131"
+                loading="lazy"
+                alt="The workspace bar: one tab per project with its branch, shortcut, Claude Code status and unread counter"
+              />
+            </figure>
+          </article>
+
+          <article class="highlight highlight-split">
+            <div class="highlight-text">
+              <span class="highlight-index">02</span>
+              <h3>Notifications from every workspace</h3>
+              <p>
+                Hand a task to Claude in one project and move on to another. When a background workspace finishes, asks
+                for permission or fails, its tab gets an unread counter and the screen you are on shows a toast with the
+                project, the session and an <strong>Open Workspace</strong> button. With the window in the background,
+                an OS notification arrives too.
+              </p>
+            </div>
+            <figure class="shot highlight-shot">
+              <img
+                src="assets/notifications.png"
+                width="739"
+                height="555"
+                loading="lazy"
+                alt="Toasts from two background workspaces: one where Claude Code needs you and one where it finished"
+              />
+            </figure>
+          </article>
+
+          <article class="highlight highlight-split">
+            <div class="highlight-text">
+              <span class="highlight-index">03</span>
+              <h3>One-click shortcuts for commands</h3>
+              <p>
+                Pin the Claude Code commands you use the most (<code>/task</code>, <code>/review-changes</code>,
+                <code>/create-tests</code>, <code>/commit-and-push</code>, your own project and personal commands) above
+                the prompt, each with its own icon. One click runs it in the current session, no typing. Favorites are
+                saved per project.
+              </p>
+            </div>
+            <figure class="shot highlight-shot">
+              <img
+                src="assets/favorite-commands.png"
+                width="1084"
+                height="277"
+                loading="lazy"
+                alt="Pinned commands above the Claude Code prompt"
+              />
+            </figure>
+          </article>
         </div>
       </section>
 
@@ -136,14 +210,14 @@
               <h3>Claude Code panel</h3>
               <p>
                 Streaming conversations, inline permission prompts, edits as side by side diffs with Accept and Reject,
-                sessions as tabs, checkpoints to rewind, and an <code>/mcp</code> server manager.
+                sessions as tabs, checkpoints to rewind, favorite commands and an <code>/mcp</code> server manager.
               </p>
             </article>
             <article class="card">
               <h3>Workspaces, not windows</h3>
               <p>
-                Open many folders as tabs in a single window. Each one keeps its own editors, terminals, language
-                servers and Claude sessions, and idle ones hibernate.
+                Many folders as tabs in a single window, each with its own editors, terminals, language servers and
+                Claude sessions. Idle ones hibernate to save memory.
               </p>
             </article>
             <article class="card">
@@ -204,10 +278,10 @@
           <figure class="shot">
             <img
               src="assets/claude-panel.jpg"
-              width="1080"
-              height="1912"
+              width="1101"
+              height="1907"
               loading="lazy"
-              alt="The Claude Code panel reading, editing and testing files, with a summary of the changed files"
+              alt="The Claude Code panel after a task, with the changed files ready to review"
             />
             <figcaption>
               The agent reads, edits and runs your tests, then lists every changed file to review.
@@ -217,7 +291,7 @@
             <img
               src="assets/git.jpg"
               width="1600"
-              height="900"
+              height="1000"
               loading="lazy"
               alt="The Git view with staged and unstaged changes, the commit history and a side by side diff"
             />

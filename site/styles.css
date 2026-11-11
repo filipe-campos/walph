@@ -328,6 +328,55 @@ p {
   box-shadow: var(--shadow-glow);
 }
 
+/* Highlights */
+
+.highlights {
+  padding: 96px 0 0;
+  scroll-margin-top: 64px;
+}
+
+.highlight {
+  margin-top: 56px;
+  display: grid;
+  gap: 28px;
+  padding: 32px;
+  background: var(--bg-100);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.highlight-split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 40px;
+}
+
+.highlight + .highlight {
+  margin-top: 24px;
+}
+
+.highlight-index {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent-strong);
+}
+
+.highlight h3 {
+  margin-top: 8px;
+  font-size: clamp(22px, 2.6vw, 28px);
+  line-height: 1.2;
+}
+
+.highlight-text p {
+  margin-top: 14px;
+  max-width: 760px;
+  color: var(--ink-muted);
+}
+
+.highlight-shot {
+  justify-self: center;
+}
+
 /* Features */
 
 .features {
@@ -336,12 +385,14 @@ p {
 }
 
 .features h2,
+.highlights h2,
 .support h2 {
   font-size: clamp(30px, 4vw, 40px);
   line-height: 1.15;
 }
 
-.features h2 {
+.features h2,
+.highlights h2 {
   text-align: center;
 }
 
@@ -503,8 +554,10 @@ p {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .showcase-grid {
+  .showcase-grid,
+  .highlight-split {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
 
   .showcase-grid .shot:first-child img {
@@ -554,8 +607,13 @@ p {
     padding-top: 64px;
   }
 
-  .support-card {
+  .support-card,
+  .highlight {
     padding: 28px 24px;
+  }
+
+  .highlights {
+    padding-top: 64px;
   }
 
   .footer-inner {
