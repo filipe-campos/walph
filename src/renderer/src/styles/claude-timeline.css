@@ -1,0 +1,954 @@
+.claude-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.claude-pane {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* Anchor of the in-session search (.claude-find). */
+  position: relative;
+}
+
+.claude-pane[hidden] {
+  display: none;
+}
+
+.claude-timeline {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  user-select: text;
+}
+
+/* In a flex column items shrink to fit; the tool cards (`overflow: hidden`) got to 0 height and overlapped. The list
+   scrolls: no item shrinks. */
+.claude-timeline > * {
+  flex-shrink: 0;
+}
+
+/* The new message (the last one) rises 4px and fades in. Only the last one: `display: none` restarts animations, and
+   showing the conversation again must not make all of them flash. */
+.claude-timeline > :last-child {
+  animation: rise-in var(--duration-base) var(--ease-out) both;
+}
+
+/* Items far from the end pay no layout/paint until they get close to the screen (the last 3 always stay rendered). */
+.claude-timeline > .claude-text-item:not(:nth-last-child(-n + 3)),
+.claude-timeline > .claude-row:not(:nth-last-child(-n + 3)),
+.claude-timeline > .claude-tool:not(:nth-last-child(-n + 3)) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 80px;
+}
+
+/* The trace glow goes past the card border: `content-visibility` would clip it. */
+.claude-timeline > .claude-tool.neon-live {
+  content-visibility: visible;
+}
+
+/* Initial state (design system `.wp-cl-empty`): left aligned, below the top, with the brain icon in a tile. */
+.claude-empty {
+  margin-top: var(--space-6);
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--ink-muted);
+}
+
+.claude-empty-mark {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-200));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--accent);
+}
+
+.claude-empty-mark .wicon {
+  width: 18px;
+  height: 18px;
+}
+
+.claude-empty-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--ui-font-size);
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.claude-empty-text {
+  font-size: var(--text-label);
+  line-height: 18px;
+}
+
+.claude-empty p {
+  margin: 0;
+}
+
+.claude-empty .button-primary {
+  margin-top: var(--space-2);
+}
+
+/* Panel without a session: inside the body padding (`.wp-cl-body`), vertically centered, icon with a breathing glow. */
+.claude-empty.claude-empty-panel {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: var(--space-4);
+  max-width: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+  overflow-y: auto;
+}
+
+.claude-empty-panel > * {
+  max-width: 280px;
+}
+
+.claude-empty-panel .claude-empty-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+    var(--shadow-neon);
+}
+
+/* Breathing glow: only the opacity of a pseudo-element with the shadow already painted (no animated filter). */
+.claude-empty-panel .claude-empty-mark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 14px var(--accent-glow);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: claude-empty-breathe 3.2s var(--ease-standard) infinite;
+}
+
+.claude-empty-panel .claude-empty-mark .wicon {
+  width: 22px;
+  height: 22px;
+}
+
+.claude-empty-cta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.claude-empty-cta .button-primary {
+  margin-top: 0;
+}
+
+.claude-empty-kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 16px;
+  color: var(--ink-faint);
+}
+
+.claude-empty-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.claude-empty-chip {
+  height: 24px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--bg-300);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  line-height: 16px;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.claude-empty-chip:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+@keyframes claude-empty-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* User message: on the right, in bg-400. Claude's: running text, no bubble. */
+.claude-user {
+  position: relative;
+  align-self: flex-end;
+  max-width: 85%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--bg-400);
+}
+
+.claude-user.queued {
+  opacity: 0.6;
+}
+
+.claude-user-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Highlighted prompt segments (`PromptSegments`), in the chat and in the input box. Only color and italics: the layer
+   behind the textarea must keep the same text width (Geist has no built-in italic, so it is synthesized). */
+.claude-seg-command {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.claude-user-meta {
+  margin-top: 2px;
+  font-size: var(--text-caption);
+}
+
+.claude-user-actions {
+  position: absolute;
+  top: -10px;
+  right: 6px;
+  display: none;
+  gap: 4px;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop);
+}
+
+.claude-user:hover .claude-user-actions,
+.claude-user-actions:focus-within {
+  display: flex;
+}
+
+.claude-nested {
+  margin-left: var(--space-3);
+  padding-left: var(--space-2);
+  border-left: 2px solid var(--line);
+}
+
+/* Claude thinking: two light comets run along the two Vs of the mark (the front one in accent-3, the back one in
+   accent, in opposite directions and half a lap apart) and a light band crosses the word at the same pace. */
+.claude-working {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+}
+
+/* Background subagents/commands: the "Thinking" indicator with the list of what is running below. */
+.claude-background-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0 0 0 calc(23px + var(--space-2));
+  list-style: none;
+  font-size: var(--text-label);
+  line-height: 16px;
+  color: var(--ink-muted);
+}
+
+.claude-background-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.claude-background-who {
+  flex: none;
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.claude-background-what {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Stop only shows on hover/focus of the row (without cluttering the list); on touch it is always visible. */
+.claude-background-stop {
+  flex: none;
+  margin-left: auto;
+  opacity: 0;
+}
+
+.claude-background-list li:hover .claude-background-stop,
+.claude-background-stop:focus-visible,
+.claude-background-stop:disabled {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .claude-background-stop {
+    opacity: 1;
+  }
+}
+
+.claude-think-mark {
+  flex: none;
+  width: 23px;
+  height: 16px;
+  overflow: visible;
+}
+
+.claude-think-mark path {
+  fill: none;
+  stroke-width: 3.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.claude-think-mark .claude-think-base {
+  fill: color-mix(in srgb, var(--accent) 8%, transparent);
+  stroke: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.claude-think-run {
+  stroke-dasharray: 24 76;
+  animation: think-trace var(--duration-pulse) linear infinite;
+  filter: drop-shadow(0 0 2px var(--accent-glow)) drop-shadow(0 0 5px var(--accent-glow));
+}
+
+.claude-think-run.front {
+  stroke: var(--accent-3);
+}
+
+.claude-think-run.back {
+  stroke: var(--accent);
+  animation-delay: calc(var(--duration-pulse) / -2);
+  animation-direction: reverse;
+}
+
+.claude-think-label {
+  font-size: var(--text-label);
+  line-height: 16px;
+  font-weight: 500;
+  color: transparent;
+  background: linear-gradient(
+    90deg,
+    var(--ink-muted) 0%,
+    var(--ink-muted) 38%,
+    var(--accent-3) 48%,
+    var(--accent) 54%,
+    var(--ink-muted) 64%,
+    var(--ink-muted) 100%
+  );
+  background-size: 260% 100%;
+  background-clip: text;
+  animation: think-sheen var(--duration-pulse) linear infinite;
+}
+
+.claude-think-label.rotating {
+  animation:
+    think-sheen var(--duration-pulse) linear infinite,
+    think-word-in var(--duration-slow) var(--ease-out);
+}
+
+@keyframes think-word-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.claude-markdown {
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.claude-markdown h1,
+.claude-markdown h2,
+.claude-markdown h3,
+.claude-markdown h4 {
+  margin: 12px 0 4px;
+  font-size: var(--ui-font-size);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.claude-markdown table {
+  border-collapse: collapse;
+  margin: 0 0 6px;
+}
+
+.claude-markdown th,
+.claude-markdown td {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+}
+
+.claude-markdown blockquote {
+  margin: 0 0 6px;
+  padding-left: 8px;
+  border-left: 2px solid var(--line-strong);
+  color: var(--ink-muted);
+}
+
+.claude-markdown pre {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.claude-file-link {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.claude-file-link:hover {
+  text-decoration: underline;
+}
+
+/* Code block copy button: in the corner, shows on hover or focus. */
+.claude-markdown pre {
+  position: relative;
+}
+
+.claude-code-copy {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-300);
+  color: var(--ink-muted);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.claude-markdown pre:hover .claude-code-copy,
+.claude-code-copy:focus-visible,
+.claude-code-copy.done {
+  opacity: 1;
+}
+
+.claude-code-copy:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+/* Message time (HH:mm) and the response footer with copy. */
+.claude-msg-time {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.claude-user .claude-msg-time {
+  text-align: right;
+}
+
+.claude-text-foot {
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.claude-text-foot .claude-msg-time {
+  margin-top: 0;
+}
+
+.claude-text-foot .claude-copy,
+.claude-user-actions .claude-copy {
+  width: 22px;
+  height: 22px;
+}
+
+.claude-text-foot .claude-copy {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.claude-text-item:hover .claude-copy,
+.claude-text-foot .claude-copy:focus-visible {
+  opacity: 1;
+}
+
+.claude-summary-time {
+  margin-left: auto;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Local CLI command output (/cost, /context…): plain text in mono, no markdown. */
+.claude-command-output {
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent);
+  color: var(--ink-muted);
+}
+
+.claude-command-output pre {
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 400 12px/16px var(--font-mono);
+  user-select: text;
+}
+
+.claude-command-foot {
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* "Conversation compacted" marker: a rule with the text in the middle. */
+.claude-compacted {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.claude-compacted::before,
+.claude-compacted::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.claude-row {
+  min-width: 0;
+}
+
+.claude-row.nested {
+  margin-left: var(--space-3);
+}
+
+/* Tool call: 26px row in bg-100, name in ink and target in mono. */
+.claude-row-head {
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 var(--space-2) 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--bg-100);
+  color: var(--ink-muted);
+  transition: background-color var(--duration-instant) var(--ease-standard);
+}
+
+.claude-row-head:hover {
+  background: var(--bg-300);
+}
+
+.claude-row.thinking .claude-row-head {
+  background: transparent;
+}
+
+.claude-row-toggle {
+  min-width: 0;
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  text-align: left;
+  color: inherit;
+}
+
+.claude-row-toggle:has(.claude-row-detail) {
+  flex: 1 1 auto;
+}
+
+.claude-row-toggle:focus-visible,
+.claude-file-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+.claude-row-head > .claude-row-detail {
+  flex: 1 1 0;
+  text-align: left;
+}
+
+.claude-row-title {
+  flex-shrink: 0;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.claude-row.thinking .claude-row-title {
+  font-family: var(--font-sans);
+  font-size: var(--ui-font-size);
+}
+
+.claude-row-detail {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.claude-row-state {
+  flex-shrink: 0;
+}
+
+.claude-row-state.error,
+.claude-row.failed .claude-row-title {
+  color: var(--danger);
+}
+
+.claude-row-body {
+  margin: var(--space-1) 0 var(--space-1) 22px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.claude-row-body pre {
+  margin: 0;
+  max-height: 220px;
+  overflow: auto;
+  padding: 6px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg-100);
+  font-family: var(--editor-font-family, var(--font-mono));
+  font-size: var(--text-label);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.claude-row-body pre.error {
+  color: var(--danger);
+}
+
+/* Claude action (design system "Claude actions", `.wp-cl-tool`): 30px row in bg-100 with the tool icon in a square that
+   shows the state; with detail, the row expands and the area scrolls from 220px. */
+.claude-tool {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent);
+  color: var(--ink-muted);
+  font: 400 12px/16px var(--font-mono);
+}
+
+.claude-tool.nested {
+  margin-left: var(--space-3);
+}
+
+.claude-tool.open {
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.claude-tool-head {
+  min-width: 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) 0 4px;
+}
+
+.claude-tool-head.can {
+  cursor: pointer;
+}
+
+.claude-tool-head.can:hover {
+  background: var(--bg-200);
+}
+
+.claude-tool-toggle {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 1 auto;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+/* Without a file link, the target stays inside the button and the button is what stretches. */
+.claude-tool-toggle:has(.claude-tool-target) {
+  flex: 1 1 auto;
+}
+
+.claude-tool-toggle:focus-visible,
+.claude-tool-head .claude-file-link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+}
+
+.claude-tool-ico {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-300);
+  color: var(--ink-muted);
+}
+
+.claude-tool-ico .wicon {
+  width: 13px;
+  height: 13px;
+}
+
+.claude-tool-ico.done {
+  background: color-mix(in srgb, var(--success) 12%, var(--bg-300));
+  color: var(--success);
+}
+
+.claude-tool-ico.error {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.claude-tool-ico.running {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Running now: the card gets the neon trace on the border (`.neon-live`, at most one per conversation). The `overflow`
+   lets the glow show; the inner shadow goes away because the border is already the trace. */
+.claude-tool.neon-live {
+  --neon-fill: var(--bg-100);
+  overflow: visible;
+  box-shadow: none;
+}
+
+/* Without the `overflow: hidden` clipping, the header hover must follow the rounded corner. */
+.claude-tool.neon-live .claude-tool-head {
+  border-radius: calc(var(--radius-md) - 1px);
+}
+
+.claude-tool-name {
+  flex: none;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.claude-tool.error .claude-tool-name {
+  color: var(--danger);
+}
+
+.claude-tool-target {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font: inherit;
+}
+
+.claude-tool-spacer {
+  flex: 1 1 0;
+}
+
+.claude-tool-stat {
+  flex: none;
+  white-space: nowrap;
+}
+
+.claude-tool-stat .add {
+  color: var(--success);
+}
+
+.claude-tool-stat .del {
+  color: var(--danger);
+}
+
+.claude-tool-meta {
+  flex: none;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+  white-space: nowrap;
+}
+
+.claude-tool-chev {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--ink-faint);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.claude-tool-chev.open {
+  transform: rotate(90deg);
+}
+
+.claude-tool-detail {
+  max-height: 220px;
+  overflow: auto;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-000) 55%, var(--bg-100));
+  font: 400 11.5px/17px var(--editor-font-family, var(--font-mono));
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.claude-dl {
+  display: flex;
+  gap: 6px;
+  padding: 0 var(--space-3);
+  color: var(--ink-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.claude-dl-sign {
+  flex: none;
+  width: 10px;
+  color: var(--ink-faint);
+  user-select: none;
+}
+
+.claude-dl.add {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--ink);
+}
+
+.claude-dl.add .claude-dl-sign {
+  color: var(--success);
+}
+
+.claude-dl.del {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+.claude-dl.del .claude-dl-sign {
+  color: var(--danger);
+}
+
+.claude-dl.cmd {
+  color: var(--ink);
+}
+
+.claude-dl.cmd .claude-dl-sign {
+  color: var(--accent);
+}
+
+.claude-dl.ok {
+  color: var(--success);
+}
+
+.claude-dl.err {
+  color: var(--danger);
+}
+
+.claude-dl.muted {
+  color: var(--ink-faint);
+}
+
+.claude-dl.q {
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.claude-dl.a {
+  color: var(--accent-strong);
+  font-family: var(--font-sans);
+}
+
+.claude-sending {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.claude-working-time {
+  margin-left: var(--space-1);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.claude-turn-time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.claude-user-images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: var(--space-1);
+}
+
+.claude-user-image {
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: zoom-in;
+  line-height: 0;
+}
+
+.claude-user-image:hover {
+  border-color: var(--line-strong);
+}
+
+.claude-user-image img {
+  height: 56px;
+  max-width: 112px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}

@@ -1,0 +1,158 @@
+# Quality on every push and PR: typecheck + lint + unit tests (with coverage and minimum thresholds) and the E2E suite
+# on Linux (windows under Xvfb, in shards); unit tests and build also on macOS and Windows (paths, case-insensitive,
+# CRLF). Every night (and on demand) the E2E suite also runs on macOS and Windows, and the packaged app is tested on
+# Linux.
+name: CI
+
+# Push only on main: on branches with a PR, `pull_request` already runs (avoids two runs per commit).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+# The event is part of the group: the nightly run of main must not cancel the push run, which the release needs green.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm typecheck
+
+      - run: pnpm lint
+
+      - run: pnpm knip
+
+      - run: pnpm docs:check
+
+      # Fails if coverage drops below the thresholds in `vitest.config.mts`; the report becomes an artifact.
+      - run: pnpm test:coverage
+
+      - name: Coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  # One worker per shard (one Electron window at a time); the shards split the specs by file.
+  e2e-linux:
+    name: e2e Linux (${{ matrix.shard }}/3)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+        with:
+          electron-display: 'true'
+
+      - run: pnpm build
+
+      - name: E2E
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1440x900x24" pnpm exec playwright test --shard=${{ matrix.shard }}/3
+
+      - name: Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-linux-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
+
+  # Unit tests and build (no E2E): the build catches packaging and native module regressions before the release.
+  unit:
+    name: unit (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      # No CRLF in the Windows checkout: fixtures and texts compared with the disk use LF.
+      - run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm test
+
+      - run: pnpm build
+
+  e2e-desktop:
+    name: e2e (${{ matrix.os }})
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm test:e2e
+
+      - name: Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ matrix.os }}
+          path: test-results/
+          retention-days: 7
+
+  # The packaged app (asar, native binaries in asarUnpack, ripgrep and node-pty) without building an installer.
+  packaged:
+    name: packaged app (Linux)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+        with:
+          electron-display: 'true'
+
+      - run: pnpm build
+
+      - run: pnpm exec electron-builder --linux --dir --publish never
+
+      - name: E2E of the packaged app
+        env:
+          WALPH_PACKAGED_EXE: ${{ github.workspace }}/dist/linux-unpacked/walph
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1440x900x24" pnpm exec playwright test e2e/packaged.spec.ts
+
+      - name: Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-packaged
+          path: test-results/
+          retention-days: 7

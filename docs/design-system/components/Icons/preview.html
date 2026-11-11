@@ -1,0 +1,23 @@
+<!-- @dsCard group="Premium" page height=200 subtitle="Walph.Icons: duotone 16px; AI icons in gradient" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Icons</title>
+<style>
+  body{background:var(--bg-100)}
+  .grid{display:grid;grid-template-columns:repeat(9,1fr);gap:var(--space-2);padding:var(--space-4)}
+  .cell{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);padding:var(--space-3) 0;border-radius:var(--radius-md);color:var(--ink-muted);transition:background-color var(--duration-instant) var(--ease-standard),color var(--duration-instant) var(--ease-standard)}
+  .cell:hover{background:var(--bg-300);color:var(--ink)}
+  .cell svg{width:24px;height:24px}
+  .cell span{font:400 11px/14px var(--font-mono)}
+  .ai{color:var(--accent)}
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var W = window.Walph, h = React.createElement;
+  var names = Object.keys(W.Icons);
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'grid' },
+    names.map(function (n) { return h('div', { key: n, className: 'cell' + (n === 'spark' || n === 'agent' || n === 'brain' || n === 'bolt' ? ' ai' : '') }, h(W.Icons[n]), h('span', null, n)); })));
+</script>
+</body>
+</html>

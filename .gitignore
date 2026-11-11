@@ -1,0 +1,11 @@
+node_modules/
+out/
+dist/
+*.tsbuildinfo
+.DS_Store
+.claude/settings.local.json
+test-results/
+playwright-report/
+coverage/
+.claude/agent-memory/
+.claude/commands/local

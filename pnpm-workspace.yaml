@@ -1,0 +1,8 @@
+allowBuilds:
+  # Prebuilds come from the optional per-platform packages; the install script only compiles with build_from_source
+  '@parcel/watcher': false
+  electron-winstaller: false
+  node-pty: true
+nodeLinker: hoisted
+patchedDependencies:
+  '@xterm/addon-webgl': patches/@xterm__addon-webgl.patch

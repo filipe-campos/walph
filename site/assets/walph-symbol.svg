@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="5 14 54 36" role="img" aria-label="Walph"><defs>
+<linearGradient id="a" x1="0" y1="14" x2="0" y2="50" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4fd1ff"/><stop offset="1" stop-color="#4da6ff"/></linearGradient>
+<linearGradient id="b" x1="0" y1="14" x2="0" y2="50" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4da6ff"/><stop offset="1" stop-color="#7b7cff"/></linearGradient>
+<mask id="k" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><path d="M5.00 14H14.20L23.00 31.60L29.30 19H38.50L23.00 50Z" fill="#000" stroke="#000" stroke-width="2.2" stroke-linejoin="round"/></mask>
+</defs><path d="M27.70 23.4H36.90L41.00 31.60L49.80 14H59.00L41.00 50Z" fill="url(#b)" mask="url(#k)"/><path d="M5.00 14H14.20L23.00 31.60L29.30 19H38.50L23.00 50Z" fill="url(#a)"/></svg>

@@ -1,0 +1,110 @@
+<!-- @dsCard group="Claude Code" height=680 subtitle="Claude actions with a per-tool icon, click to expand (Bash, Leu, Editou, Perguntou) · one-click favorite commands (+ to pin) · questions, commands, mode, model + effort, attachments and voice" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ClaudePanel: preview</title><style>html,body{height:100%}#root{height:100%;display:flex;justify-content:flex-end;background:var(--bg-100)}.side{width:420px;height:100%}</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var W = window.Walph, h = React.createElement;
+  var pixBase = [
+    { role: 'user', text: 'Como o InvoiceService decide o meio de pagamento hoje?' },
+    { role: 'assistant', text: 'Pelo campo method da fatura: card vai para o StripeAdapter e boleto para o BoletoAdapter. Não existe caminho para Pix.' },
+    { role: 'tool', name: 'Read', target: 'src/invoice.service.ts', state: 'done', meta: '142 linhas', detail: [
+      { text: '38  async charge(invoice: Invoice) {', kind: 'muted' }, { text: "39    if (invoice.method === 'card') return this.stripe.create(invoice)" }, { text: "40    if (invoice.method === 'boleto') return this.boleto.create(invoice)" }, { text: "41    throw new UnsupportedMethodError(invoice.method)" }, { text: '42  }', kind: 'muted' }] },
+    { role: 'tool', name: 'Grep', target: '"method ===" src/', state: 'done', meta: '3 resultados', detail: [{ text: 'src/invoice.service.ts:39' }, { text: 'src/invoice.service.ts:40' }, { text: 'src/webhooks/router.ts:12' }] },
+    { role: 'tool', name: 'AskUserQuestion', target: 'Qual provedor de Pix usar?', state: 'done', detail: [{ text: 'Qual provedor de Pix usar?', kind: 'q' }, { text: '→ Efí (Gerencianet)', kind: 'a' }] },
+    { role: 'user', text: 'Adicione suporte a Pix no checkout e cubra com testes. Use QR dinâmico com expiração de 30 minutos.' },
+    { role: 'assistant', text: 'Vou criar um adapter de Pix com QR dinâmico, ligar no InvoiceService pelo method "pix" e escrever os testes do adapter e do serviço.' },
+    { role: 'tool', name: 'Read', target: 'src/adapters/stripe.adapter.ts', state: 'done' },
+    { role: 'tool', name: 'Read', target: 'src/adapters/boleto.adapter.ts', state: 'done' },
+    { role: 'assistant', text: 'Os dois adapters implementam PaymentAdapter com create() e status(). O de Pix segue o mesmo contrato; a expiração entra como expiresIn no create().' }
+  ];
+  var COMMANDS = [
+    { name: 'review', description: 'Revisa o diff atual contra o guia de estilo do time', scope: 'project' },
+    { name: 'test-e2e', description: 'Roda e corrige os testes E2E do fluxo informado', argumentHint: '<fluxo>', scope: 'project' },
+    { name: 'deploy-staging', description: 'Build, migrations e deploy no staging da OCI', scope: 'project' },
+    { name: 'changelog', description: 'Gera a entrada do CHANGELOG a partir dos commits', scope: 'project' },
+    { name: 'standup', description: 'Resume o que mudou desde ontem em todos os workspaces', scope: 'user' }
+  ];
+  var ORM_Q = [
+    { id: 'orm', header: 'ORM', question: 'Qual ORM devo usar no módulo de conciliação?', options: [
+      { label: 'TypeORM', description: 'Já usado no billing-api' }, { label: 'Prisma', description: 'Client tipado; exige migrar o schema' }, { label: 'Drizzle', description: 'SQL tipado, sem geração de código' }] },
+    { id: 'db', header: 'Banco', question: 'Onde guardo os extratos importados?', options: [
+      { label: 'Postgres atual', description: 'Nova tabela bank_statements' }, { label: 'Banco separado', description: 'Isola a carga de importação' }] }
+  ];
+  var STATIC = {
+    e2e: { status: 'running', agents: [{ id: 'e1', name: 'test-writer', task: 'Cobrindo login com 2FA', status: 'running', elapsed: '2:10' }], messages: [
+      { role: 'user', text: 'Escreva testes E2E do fluxo de login' },
+      { role: 'tool', name: 'Write', target: 'e2e/login.spec.ts', state: 'done', add: 46, del: 0 },
+      { role: 'tool', name: 'Bash', target: 'npx playwright test e2e/login', state: 'running' }] },
+    orm: { status: 'attention', messages: [
+      { role: 'user', text: 'Crie o módulo de conciliação bancária' },
+      { role: 'assistant', text: 'Antes de começar, preciso de duas decisões suas.' }] },
+    hooks: { status: 'done', messages: [
+      { role: 'user', text: 'Refatore os webhooks do Stripe' },
+      { role: 'assistant', text: 'Separei a validação de assinatura do roteamento por tipo de evento.' }],
+      summary: { title: 'Pronto — 2 arquivos alterados', files: [{ path: 'src/webhooks/stripe.ts', add: 38, del: 71 }, { path: 'src/webhooks/router.ts', add: 52, del: 0 }], onReview: function () {} } }
+  };
+  function Demo() {
+    var st = React.useState(0), step = st[0], setStep = st[1];
+    var ss = React.useState([
+      { id: 'pix', title: 'Pix no checkout', status: 'running', favorite: true },
+      { id: 'e2e', title: 'Testes E2E', status: 'running' },
+      { id: 'orm', title: 'Escolher ORM', status: 'attention', unread: 1 },
+      { id: 'hooks', title: 'Refatorar webhooks', status: 'done', unread: 1 }
+    ]), sessions = ss[0], setSessions = ss[1];
+    var as = React.useState('pix'), active = as[0], setActive = as[1];
+    var n = React.useRef(1);
+    var at = React.useState([{ id: 'a1', name: 'checkout-mock.png', size: '184 KB' }]), atts = at[0], setAtts = at[1];
+    var fv = React.useState([{ name: 'review', icon: 'check' }, { name: 'test-e2e', icon: 'flask' }, { name: 'deploy-staging', icon: 'rocket' }]), favs = fv[0], setFavs = fv[1];
+    var toggleFav = function (id) { setSessions(function (l) { return l.map(function (s) { return s.id === id ? Object.assign({}, s, { favorite: !s.favorite }) : s; }); }); };
+    var upload = function (files) { setAtts(function (l) { return l.concat(files.map(function (f, i) { return { id: 'f' + Date.now() + i, name: f.name, size: Math.max(1, Math.round(f.size / 1024)) + ' KB' }; })); }); };
+    React.useEffect(function () {
+      var t = setTimeout(function () { setStep(function (x) { return (x + 1) % 4; }); }, step === 3 ? 5000 : step === 1 ? 3500 : 1800);
+      return function () { clearTimeout(t); };
+    }, [step]);
+    var pixStatus = step === 1 ? 'attention' : step === 3 ? 'done' : 'running';
+    React.useEffect(function () {
+      setSessions(function (l) { return l.map(function (s) {
+        if (s.id !== 'pix') return s;
+        var bump = (pixStatus === 'done' || pixStatus === 'attention') && active !== 'pix';
+        return Object.assign({}, s, { status: pixStatus, unread: bump ? (s.unread || 0) + 1 : s.unread });
+      }); });
+    }, [pixStatus]);
+    var select = function (id) { setActive(id); setSessions(function (l) { return l.map(function (s) { return s.id === id ? Object.assign({}, s, { unread: 0 }) : s; }); }); };
+    var add = function () { n.current += 1; var id = 'new' + n.current; setSessions(function (l) { return l.concat([{ id: id, title: 'Sessão ' + (l.length + 1), status: 'idle' }]); }); setActive(id); };
+    var close = function (id) {
+      setSessions(function (l) {
+        var i = l.findIndex(function (s) { return s.id === id; }), next = l.filter(function (s) { return s.id !== id; });
+        if (id === active && next.length) setActive(next[Math.max(0, i - 1)].id);
+        return next.length ? next : l;
+      });
+    };
+    var cur = sessions.filter(function (s) { return s.id === active; })[0] || sessions[0];
+    var props;
+    if (cur.id === 'pix') {
+      var msgs = pixBase.slice();
+      if (step >= 1) msgs.push({ role: 'tool', name: 'Edit', target: 'src/invoice.service.ts', state: 'done', add: 3, del: 1, detail: [
+        { text: "if (invoice.method === 'boleto') return this.boleto.create(invoice)", kind: 'ctx' }, { text: 'throw new UnsupportedMethodError(invoice.method)', kind: 'del' },
+        { text: "if (invoice.method === 'pix') return this.pix.create(invoice, { expiresIn: 1800 })", kind: 'add' }, { text: 'throw new UnsupportedMethodError(invoice.method)', kind: 'add' }] });
+      if (step >= 1) msgs.push({ role: 'tool', name: 'Write', target: 'src/pix.adapter.ts', state: step === 1 ? 'running' : 'done', add: 84, del: 0 });
+      if (step >= 2) msgs.push({ role: 'tool', name: 'Bash', target: 'npm test -- invoice', state: step === 2 ? 'running' : 'done', meta: step === 2 ? '' : '4,2 s', detail: step === 2 ? [{ text: 'npm test -- invoice', kind: 'cmd' }, { text: ' RUNS  src/invoice.service.spec.ts', kind: 'muted' }] : [
+        { text: 'npm test -- invoice', kind: 'cmd' }, { text: ' PASS  src/invoice.service.spec.ts (12 testes)', kind: 'ok' }, { text: ' PASS  src/pix.adapter.spec.ts (12 testes)', kind: 'ok' }, { text: 'Tests: 24 passed, 24 total', kind: 'muted' }] });
+      props = { status: pixStatus, messages: msgs,
+        agents: step === 3 ? [{ id: 'g1', name: 'explore', task: 'Mapeou o fluxo de cobrança', status: 'done', elapsed: '0:42' }, { id: 'g2', name: 'implement', task: 'Criou pix.adapter.ts', status: 'done', elapsed: '1:18' }, { id: 'g3', name: 'test-runner', task: '24 testes passando', status: 'done', elapsed: '0:31' }]
+          : [{ id: 'g1', name: 'explore', task: 'Mapeou o fluxo de cobrança', status: 'done', elapsed: '0:42' }, { id: 'g2', name: 'implement', task: 'Escrevendo pix.adapter.ts', status: step === 1 ? 'attention' : 'running', elapsed: '1:05' }, { id: 'g3', name: 'test-runner', task: 'Rodando npm test -- invoice', status: step === 2 ? 'running' : 'idle', elapsed: step === 2 ? '0:12' : '' }],
+        permission: step === 1 ? { command: 'npm install qrcode-pix@2.1.0', onAllow: function () { setStep(2); }, onAllowAlways: function () { setStep(2); }, onDeny: function () { setStep(0); } } : null,
+        summary: step === 3 ? { title: 'Pronto — 3 arquivos alterados, 24 testes passando', files: [{ path: 'src/pix.adapter.ts', add: 84, del: 0 }, { path: 'src/invoice.service.ts', add: 21, del: 6 }, { path: 'src/pix.adapter.spec.ts', add: 57, del: 0 }], onReview: function () {} } : null };
+    } else if (cur.id === 'orm') props = Object.assign({}, STATIC.orm, { status: cur.status, messages: cur.status === 'attention' ? STATIC.orm.messages : STATIC.orm.messages.concat([{ role: 'assistant', text: 'Certo — sigo com as suas escolhas.' }]), question: cur.status !== 'attention' ? null : { questions: ORM_Q, onSubmit: function () { setSessions(function (l) { return l.map(function (s) { return s.id === 'orm' ? Object.assign({}, s, { status: 'running' }) : s; }); }); }, onSkip: function () {} } });
+    else if (STATIC[cur.id]) props = STATIC[cur.id];
+    else props = { status: 'idle', messages: [] };
+    return h('div', { className: 'side' }, h(W.ClaudePanel, Object.assign({
+      workspace: 'billing-api', sessions: sessions, activeSessionId: cur.id, commands: COMMANDS, onCommand: function () {}, favoriteCommands: favs, onFavoriteCommandsChange: setFavs, onRunCommand: function () {},
+      onToggleFavorite: toggleFav, onSessionAction: function () {}, attachments: atts, onUpload: upload, onRemoveAttachment: function (id) { setAtts(atts.filter(function (a) { return a.id !== id; })); },
+      onSelectSession: select, onNewSession: add, onCloseSession: close, onStop: function () {}, onSubmit: function () {}
+    }, props)));
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

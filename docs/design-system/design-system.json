@@ -1,0 +1,137 @@
+{
+  "v": 3,
+  "assetGroups": {
+    "Logos": {
+      "name": "Logos",
+      "tile": "l",
+      "order": [
+        "walph-logo.svg",
+        "walph-symbol.svg",
+        "walph-logo-mono.svg",
+        "walph-symbol-mono.svg",
+        "walph-logo-dark.svg",
+        "walph-symbol-dark.svg"
+      ],
+      "files": {
+        "walph-logo.svg": {
+          "name": "walph-logo.svg",
+          "blob": "aa87cbbd1277d28de7551b63072b71b0",
+          "size": 2711,
+          "type": "image/svg+xml"
+        },
+        "walph-symbol.svg": {
+          "name": "walph-symbol.svg",
+          "blob": "de48e7e313b2c23378bf09d623787ecb",
+          "size": 971,
+          "type": "image/svg+xml"
+        },
+        "walph-logo-mono.svg": {
+          "name": "walph-logo-mono.svg",
+          "blob": "83e7bdd0bb097281e37650117a43741f",
+          "size": 2344,
+          "type": "image/svg+xml"
+        },
+        "walph-symbol-mono.svg": {
+          "name": "walph-symbol-mono.svg",
+          "blob": "32db14f1d0fa24502f37ea743f399ac9",
+          "size": 604,
+          "type": "image/svg+xml"
+        },
+        "walph-logo-dark.svg": {
+          "name": "walph-logo-dark.svg",
+          "blob": "05ee323729293e6f8f883392f41669f6",
+          "size": 2711,
+          "type": "image/svg+xml"
+        },
+        "walph-symbol-dark.svg": {
+          "name": "walph-symbol-dark.svg",
+          "blob": "ce39dd60563b994047664ed39fcd3a56",
+          "size": 604,
+          "type": "image/svg+xml"
+        }
+      }
+    },
+    "Aplicativo": {
+      "name": "Aplicativo",
+      "tile": "m",
+      "order": [
+        "walph-app-macos.svg",
+        "walph-app-macos-1024.png",
+        "walph-app-macos-small.svg",
+        "walph-app-windows.svg",
+        "walph-app-windows-256.png",
+        "walph-app-small.svg"
+      ],
+      "files": {
+        "walph-app-macos.svg": {
+          "name": "walph-app-macos.svg",
+          "blob": "37500c6521c2dc666688f50c290c94b2",
+          "size": 8809,
+          "type": "image/svg+xml"
+        },
+        "walph-app-macos-1024.png": {
+          "name": "walph-app-macos-1024.png",
+          "blob": "80343953a77ca0faddced46eacfe8a19",
+          "size": 114393,
+          "type": "image/png"
+        },
+        "walph-app-macos-small.svg": {
+          "name": "walph-app-macos-small.svg",
+          "blob": "cd5a0f25f1a67f42b3ab723d25ebd2ce",
+          "size": 8705,
+          "type": "image/svg+xml"
+        },
+        "walph-app-windows.svg": {
+          "name": "walph-app-windows.svg",
+          "blob": "76e92743ef6ee5f88c80719e28fbb915",
+          "size": 2784,
+          "type": "image/svg+xml"
+        },
+        "walph-app-windows-256.png": {
+          "name": "walph-app-windows-256.png",
+          "blob": "dadbad25aac5b5b068134b24e6d4ae0b",
+          "size": 41791,
+          "type": "image/png"
+        },
+        "walph-app-small.svg": {
+          "name": "walph-app-small.svg",
+          "blob": "5d3d31b919b109d1d462dbf972f43399",
+          "size": 2627,
+          "type": "image/svg+xml"
+        }
+      }
+    }
+  },
+  "blobs": {},
+  "createdOnFiles": {
+    "at": "2026-10-16T14:48:25.325Z",
+    "v": 1
+  },
+  "docs": {
+    "sections": []
+  },
+  "groups": [
+    "Logos",
+    "Aplicativo"
+  ],
+  "layout": "files",
+  "libraries": [
+    {
+      "name": "react",
+      "version": "18"
+    },
+    {
+      "name": "react-dom",
+      "version": "18"
+    }
+  ],
+  "namespace": "Walph",
+  "sections": {},
+  "title": "Walph",
+  "lastChange": {
+    "by": "Filipe",
+    "at": "2026-10-19T14:05:00Z",
+    "via": "Claude (Cowork)",
+    "note": "ClaudePanel: \"Pensando\" indicator with comets running along the two Vs of the logo and a text shimmer (instead of the three dots)"
+  }
+}

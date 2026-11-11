@@ -1,0 +1,1379 @@
+/* ---------- Layout ---------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Room for the macOS traffic lights to the left of the WorkspaceBar (which is the title bar); main.tsx marks the
+   platform. */
+:root {
+  --titlebar-inset: 0px;
+}
+:root[data-platform='darwin'] {
+  --titlebar-inset: 78px;
+}
+
+/* ---------- WorkspaceBar: workspace tabs + title bar ---------- */
+
+.workspace-bar {
+  height: 66px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  padding: 0 var(--space-2) 0 calc(var(--titlebar-inset) + var(--space-2));
+  background: var(--bg-000);
+  border-bottom: 1px solid var(--line);
+  user-select: none;
+}
+
+/* Only on macOS the bar is the title bar (window without a native frame); on the others the OS already has its own. */
+:root[data-platform='darwin'] .workspace-bar {
+  -webkit-app-region: drag;
+}
+
+.workspace-scroller {
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.workspace-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.workspace-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.workspace-tab,
+.workspace-add {
+  -webkit-app-region: no-drag;
+}
+
+/* 204x56 tab: name on top, branch and parent folder below, counter, shortcut and "x" on the right. */
+.workspace-tab {
+  --neon-fill: var(--bg-200);
+  position: relative;
+  box-sizing: border-box;
+  width: 204px;
+  height: 56px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border: 0.5px solid color-mix(in srgb, var(--ink-faint) 50%, transparent);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+/* Only tabs created after the first paint of the bar (and with the view active) animate in. */
+.workspace-tab.entering {
+  animation: workspace-tab-in var(--duration-base) var(--ease-out);
+}
+
+.workspace-tab:hover {
+  background: var(--bg-200);
+  border-color: color-mix(in srgb, var(--ink-muted) 50%, transparent);
+  color: var(--ink);
+}
+
+.workspace-tab:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Active: full 2px gradient ring, 14% accent over bg-300, radial glow and glow. */
+.workspace-tab.active,
+.workspace-tab.active:hover {
+  --neon-fill: color-mix(in srgb, var(--accent) 14%, var(--bg-300));
+  padding-left: calc(var(--space-3) - 1.5px);
+  border: 2px solid transparent;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent-3) 10%, transparent), transparent 60%)
+      padding-box,
+    linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+    linear-gradient(120deg, var(--accent-3), var(--accent) 50%, var(--accent-2)) border-box;
+  box-shadow:
+    0 0 14px -3px var(--accent-glow),
+    0 2px 8px -4px var(--scrim);
+}
+
+/* Running (active or not): the neon runs along the whole border. */
+.workspace-tab.running,
+.workspace-tab.running:hover {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+    conic-gradient(from var(--neon-angle), var(--grad-trace-stops)) border-box;
+  animation: neon-trace var(--duration-trace) linear infinite;
+}
+
+.workspace-tab.running.active,
+.workspace-tab.running.active:hover {
+  border-width: 2px;
+}
+
+.workspace-tab.running::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--grad-ring);
+  filter: blur(7px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Claude waiting for an answer (active or not): yellow border and pulsing glow; wins over the active gradient ring. */
+.workspace-tab.attention,
+.workspace-tab.attention:hover,
+.workspace-tab.attention.active,
+.workspace-tab.attention.active:hover {
+  border: 1px solid var(--warning);
+  background: var(--neon-fill);
+  animation: workspace-attention-glow var(--duration-pulse) var(--ease-breathe) infinite;
+}
+
+.workspace-tab.attention.active,
+.workspace-tab.attention.active:hover {
+  border-width: 2px;
+  padding-left: calc(var(--space-3) - 1.5px);
+}
+
+@keyframes workspace-attention-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--warning) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 12px 1px color-mix(in srgb, var(--warning) 55%, transparent);
+  }
+}
+
+/* Drag: the other tabs slide (inline transform) and the dragged one disappears, leaving the slot empty (the class only
+   applies after the drag snapshot). On drop, a frame without transition avoids the "animated return" while the new
+   order arrives from main. */
+.workspace-tab.dragging {
+  visibility: hidden;
+}
+
+.workspace-tabs.settling .workspace-tab {
+  transition: none;
+}
+
+/* Muted: discreet notice, dimmed counter and no attention glow. */
+.workspace-tab-muted {
+  flex: none;
+  color: var(--ink-faint);
+  font-size: var(--text-label);
+}
+
+.workspace-tab.muted .workspace-tab-unread {
+  opacity: 0.5;
+  animation: none;
+}
+
+.workspace-tab.muted.attention,
+.workspace-tab.muted.attention:hover,
+.workspace-tab.muted.attention.active,
+.workspace-tab.muted.attention.active:hover {
+  animation: none;
+  border-color: color-mix(in srgb, var(--ink-faint) 50%, transparent);
+}
+
+/* Text column: takes the remaining space, so counter, shortcut and "x" always stay at the right end (with or without a
+   branch). */
+.workspace-tab-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+
+.workspace-tab-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: inherit;
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.workspace-tab.active .workspace-tab-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.workspace-tab.dormant .workspace-tab-name {
+  color: var(--ink-muted);
+}
+
+/* Unread in an inactive tab: the name goes up to ink, the background does not change. */
+.workspace-tab:not(.active):has(.workspace-tab-unread) .workspace-tab-name {
+  color: var(--ink);
+}
+
+.workspace-tab-branch {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: 400;
+  line-height: 13px;
+}
+
+.workspace-tab.active .workspace-tab-branch {
+  color: var(--ink-muted);
+}
+
+.workspace-tab-parent {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+  line-height: 13px;
+}
+
+.workspace-tab-branch .wicon {
+  width: 10px;
+  height: 10px;
+  flex: none;
+}
+
+.workspace-tab-branch-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.unread-badge {
+  position: relative;
+  flex: none;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  line-height: 16px;
+}
+
+/* Tab counter: status color, on-accent text and a halo that pulses until read. */
+.workspace-tab-unread {
+  --count-c: var(--accent);
+  box-sizing: border-box;
+  background: var(--count-c);
+  color: var(--on-accent);
+  font-family: var(--font-sans);
+  animation: workspace-count-pulse var(--duration-pulse) var(--ease-out) var(--duration-base) infinite;
+}
+
+/* The pop only happens on an increase seen with the view active, never when the counter mounts. */
+.workspace-tab-unread.pop {
+  animation:
+    badge-pop var(--duration-base) var(--ease-out),
+    workspace-count-pulse var(--duration-pulse) var(--ease-out) var(--duration-base) infinite;
+}
+
+.workspace-tab-unread[data-count-status='done'] {
+  --count-c: var(--success);
+}
+
+.workspace-tab-unread[data-count-status='attention'] {
+  --count-c: var(--warning);
+}
+
+.workspace-tab-unread[data-count-status='error'] {
+  --count-c: var(--danger);
+}
+
+@keyframes workspace-count-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--count-c) 65%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--count-c) 0%, transparent);
+  }
+}
+
+/* Compact shortcut key, always visible. */
+.workspace-tab-kbd {
+  box-sizing: border-box;
+  height: 17px;
+  min-width: 22px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--bg-200);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-tab.active .workspace-tab-kbd {
+  background: var(--bg-400);
+}
+
+.workspace-tab-kbd-mod {
+  width: 12px;
+  height: 12px;
+  margin: 0 -1px;
+  flex: none;
+  stroke-width: 1.25px;
+}
+
+.workspace-tab-kbd-key {
+  height: 8px;
+  font-size: var(--text-caption);
+  line-height: 8px;
+}
+
+.workspace-tab:hover .workspace-tab-close,
+.workspace-tab.active .workspace-tab-close,
+.workspace-tab:focus-visible .workspace-tab-close {
+  opacity: 1;
+}
+
+.workspace-add {
+  margin-left: var(--space-1);
+}
+
+/* ---------- "Open folder as workspace" modal ---------- */
+
+.modal.add-workspace-modal {
+  width: min(560px, 100%);
+  height: min(520px, calc(100% - 32px));
+}
+
+/* Body with the same inner border as the header and the footer (space-4); the list scrolls, the footer stays visible.
+   */
+.add-workspace-modal .modal-body {
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+.add-workspace-filter {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-2);
+  padding: 0 var(--space-2);
+  height: 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+  color: var(--ink-muted);
+}
+
+.add-workspace-filter:focus-within {
+  border-color: var(--accent);
+}
+
+.add-workspace-filter .wicon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.add-workspace-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  outline: none;
+}
+
+.add-workspace-input::placeholder {
+  color: var(--ink-faint);
+}
+
+.add-workspace-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0 calc(-1 * var(--space-2));
+  padding: 0 var(--space-2) var(--space-2);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.add-workspace-list .recent-item {
+  min-width: 0;
+}
+
+.add-workspace-list .recent-open,
+.add-workspace-list .recent-text {
+  min-width: 0;
+}
+
+.add-workspace-list .recent-item.highlighted {
+  background: var(--bg-400);
+}
+
+.add-workspace-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: var(--space-6) 0;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.workbench {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Icon column (48px, bg-000): forms a dark "L" with the status bar. */
+.activity-bar {
+  width: 48px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  background: var(--bg-000);
+  border-right: 1px solid var(--line);
+}
+
+.activity-spacer {
+  flex: 1;
+}
+
+.activity-item {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+.activity-item .wicon {
+  width: 20px;
+  height: 20px;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.activity-item:hover {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.activity-item:active .wicon {
+  transform: scale(0.9);
+}
+
+.activity-item.active {
+  background: var(--bg-300);
+  color: var(--accent);
+}
+
+/* Indicator: gradient bar on the left edge of the column, next to the active icon. */
+.activity-item::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  transform: scaleY(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.activity-item.active::after {
+  transform: none;
+}
+
+/* Collapsed view: the icon stays lit and the indicator shrinks by half. */
+.activity-item.active.collapsed {
+  background: transparent;
+}
+
+.activity-item.active.collapsed::after {
+  transform: scaleY(0.45);
+}
+
+.activity-item.settings::after {
+  display: none;
+}
+
+.activity-badge {
+  position: absolute;
+  top: 2px;
+  right: 1px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--grad-brand);
+  box-shadow: 0 0 0 2px var(--bg-000);
+  color: var(--on-accent);
+  font-size: calc(var(--ui-font-size) * 9 / 13);
+  font-weight: 600;
+  line-height: 15px;
+  animation: badge-pop var(--duration-base) var(--ease-out);
+}
+
+.sidebar {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  background: var(--bg-200);
+  min-width: 0;
+}
+
+.sidebar[hidden] {
+  display: none;
+}
+
+.sidebar-slot {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  animation: slide-in var(--duration-base) var(--ease-out);
+}
+
+.sidebar-slot[hidden] {
+  display: none;
+}
+
+.resizer {
+  flex-shrink: 0;
+  background: var(--line);
+  position: relative;
+  z-index: 5;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.resizer-x {
+  width: 1px;
+  cursor: col-resize;
+}
+
+.resizer-y {
+  height: 1px;
+  cursor: row-resize;
+}
+
+/* Touch area bigger than the visible line */
+.resizer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.resizer-x::after {
+  left: -3px;
+  right: -3px;
+}
+.resizer-y::after {
+  top: -3px;
+  bottom: -3px;
+}
+
+.resizer:hover,
+body.resizing-x .resizer-x,
+body.resizing-y .resizer-y {
+  background: var(--accent);
+}
+
+.main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panel on the right: editor and panel side by side. */
+.main.panel-right {
+  flex-direction: row;
+}
+
+/* The editor stays mounted when the panel is maximized (only hidden). */
+.editor-slot {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-slot[hidden] {
+  display: none;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* View title in `caption`: uppercase, ink-muted; actions always visible on the right. */
+.sidebar-title {
+  height: 35px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-2) 0 var(--space-4);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sidebar-title > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.empty-state {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--ink-muted);
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+.empty-line {
+  padding: var(--space-1) 28px;
+  color: var(--ink-muted);
+}
+
+.tree,
+.search-results,
+.git-files {
+  flex: 1;
+  overflow: auto;
+  padding: 0 6px 12px;
+}
+
+/* List row (explorer, search, git): 22px, radius-sm; hover bg-400; selection accent-soft. */
+.tree-row {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-right: var(--space-2);
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+.tree-row:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+/* Drag-and-drop target: the folder that will receive it (or the whole tree, when it is the root). */
+.tree-row.drop-target {
+  background: var(--accent-soft);
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+  color: var(--ink);
+}
+
+.tree.drop-target {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.tree-row.selected {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+/* Multiple selection: the focused row (paste target) gets an outline to stand out from the others. */
+.tree-row.selected.focused {
+  outline: 1px solid var(--line-strong);
+  outline-offset: -1px;
+}
+
+.tree-row.active,
+.tree-row.active:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.tree-row .codicon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+/* Chevron rotates 90° when opening; on files it is just a space of the same size. */
+.tree-chevron {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.tree-row.open .tree-chevron,
+.tree-chevron.open {
+  transform: rotate(90deg);
+}
+
+.tree-icon {
+  margin-right: 2px;
+}
+
+/* Folders are 18px: compensates so the label lines up with the files' one. */
+svg.tree-icon[width='18'] {
+  margin: 0 1px 0 -1px;
+}
+
+.tree-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.tree-row.editing input {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  padding: 0 4px;
+  border-color: var(--accent);
+}
+
+/* Ignored by git (.gitignore): name in ink-faint and a less opaque icon (selection/focus intact), no badge; a real git
+   decoration takes precedence (its own class). */
+/* A cut item stays dimmed until pasted. */
+.tree-row.cut {
+  opacity: 0.5;
+}
+
+.tree-row.git-ignored .tree-label {
+  color: var(--ink-faint);
+}
+
+.tree-row.git-ignored .tree-icon {
+  opacity: 0.55;
+}
+
+.git-badge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+
+.git-dot {
+  margin-left: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.tree-row.git-modified,
+.git-modified {
+  color: var(--git-modified);
+}
+.tree-row.git-added,
+.git-added {
+  color: var(--git-added);
+}
+.tree-row.git-untracked,
+.git-untracked {
+  color: var(--git-untracked);
+}
+.tree-row.git-deleted,
+.git-deleted {
+  color: var(--git-deleted);
+  text-decoration: line-through;
+}
+.tree-row.git-conflict,
+.git-conflict {
+  color: var(--git-conflict);
+}
+
+.count-badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-400);
+  color: var(--ink);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Search ---------- */
+
+.search-box {
+  padding: 0 var(--space-3) var(--space-2) var(--space-1);
+}
+
+.search-fields {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+/* Chevron that expands the replace field, to the left of the fields (like in VS Code). */
+.search-replace-toggle {
+  width: 16px;
+  align-self: stretch;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+}
+
+.search-replace-toggle:hover:not(:disabled) {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.search-inputs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.search-filters-toggle {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-caption);
+  color: var(--ink-muted);
+}
+
+.search-filter input {
+  height: 26px;
+  padding: 0 var(--space-2);
+}
+
+/* Field with toggles: line-strong border, accent focus. */
+.search-input {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  background: var(--bg-100);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  padding-right: 2px;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+.search-input:focus-within {
+  border-color: var(--accent);
+}
+
+.search-input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0 var(--space-2);
+}
+
+.toggle {
+  width: 22px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  color: var(--ink-muted);
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+.toggle:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.toggle.on,
+.toggle.on:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.search-summary {
+  margin-top: var(--space-2);
+  padding-left: var(--space-4);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.search-summary.error {
+  color: var(--danger);
+  white-space: pre-wrap;
+}
+
+.search-file {
+  padding-left: var(--space-1);
+}
+
+.search-file .tree-label {
+  color: var(--ink);
+}
+
+.search-match {
+  padding-left: 40px;
+}
+
+.search-match.selected {
+  background: var(--accent-soft);
+}
+
+.match-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.match-text mark {
+  background: var(--editor-match);
+  color: var(--ink);
+  border-radius: 2px;
+}
+
+.match-text mark.match-old {
+  background: var(--diff-deleted);
+  text-decoration: line-through;
+  color: var(--git-deleted);
+}
+
+.match-text mark.match-new {
+  background: var(--diff-inserted);
+  color: var(--git-added);
+}
+
+/* ---------- Git ---------- */
+
+.commit-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) var(--space-3) var(--space-4);
+}
+
+.commit-box textarea {
+  resize: vertical;
+  padding: 6px var(--space-2);
+  min-height: 52px;
+  border-radius: var(--radius-md);
+}
+
+.section-header {
+  padding-left: var(--space-1);
+  color: var(--ink-muted);
+  font-weight: 500;
+  font-size: var(--text-caption);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.section-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  text-align: left;
+  text-transform: inherit;
+  letter-spacing: inherit;
+}
+
+.section-toggle .count-badge {
+  margin-left: auto;
+}
+
+/* Outline at the bottom of the Explorer: its own height (handle above) when open, only the header when closed. */
+.outline {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.outline.open {
+  border-top: none;
+}
+
+.outline-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.outline-tree {
+  flex: 1;
+  min-height: 0;
+}
+
+.outline-filter {
+  flex: none;
+  height: 24px;
+  margin: 2px 6px 4px;
+  padding: 0 var(--space-2);
+  border-color: var(--accent);
+  font-size: var(--text-label);
+}
+
+.outline-twisty {
+  display: inline-flex;
+  flex: none;
+}
+
+.outline-detail {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+}
+
+/* `SymbolKind` icon (Outline, breadcrumbs): the color follows the group, like in the completion list. */
+.symbol-icon {
+  color: var(--ink-muted);
+}
+
+.symbol-icon.kind-function {
+  color: var(--syn-function);
+}
+
+.symbol-icon.kind-variable {
+  color: var(--syn-property);
+}
+
+.symbol-icon.kind-type {
+  color: var(--syn-type);
+}
+
+.git-file {
+  padding-left: 22px;
+}
+
+.row-actions {
+  display: none;
+  margin-left: auto;
+  gap: 2px;
+}
+
+.row-actions .icon-button {
+  width: 20px;
+  height: 20px;
+}
+
+.tree-row:hover .row-actions,
+.tree-row:focus-within .row-actions {
+  display: flex;
+}
+
+.tree-row:is(:hover, :focus-within) .row-actions + .count-badge,
+.tree-row:is(:hover, :focus-within) .row-actions + .git-letter {
+  margin-left: 4px;
+}
+
+/* Git status letter: always shows, not just the color. */
+.git-letter {
+  margin-left: auto;
+  width: 14px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: var(--text-caption);
+}
+
+.git-letter-M {
+  color: var(--git-modified);
+}
+.git-letter-A,
+.git-letter-U {
+  color: var(--git-untracked);
+}
+.git-letter-D {
+  color: var(--git-deleted);
+}
+.git-letter-R,
+.git-letter-C {
+  color: var(--git-renamed);
+}
+
+/* Commit box: Amend */
+.commit-amend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.commit-amend input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+/* Indeterminate pull/push/sync progress: --grad-ai light running. */
+.progress-bar {
+  position: relative;
+  height: 2px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  background: var(--grad-ai);
+  box-shadow: 0 0 6px var(--accent-glow);
+  animation: progress-slide 1.2s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    left: -30%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+/* History and stashes */
+.commit-row {
+  height: auto;
+  min-height: 38px;
+  padding: 3px var(--space-2);
+}
+
+.commit-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 16px;
+}
+
+.commit-meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.commit-file {
+  padding-left: 32px;
+}
+
+.commit-files-note {
+  padding-left: 36px;
+}
+
+.load-more {
+  width: 100%;
+  padding-left: var(--space-2);
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--accent);
+}
+
+.load-more:disabled {
+  pointer-events: none;
+  color: var(--ink-muted);
+}
+
+.git-row-date {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: var(--text-caption);
+}
+
+.tree-row:is(:hover, :focus-within) .row-actions + .git-row-date {
+  margin-left: 4px;
+}
+
+/* Editor gutter: 3px bars for added/modified lines and a triangle for deletions */
+.cm-gutter.cm-git-gutter {
+  width: 5px;
+  min-width: 5px;
+}
+
+.cm-git-gutter .cm-gutterElement.cm-git-added,
+.cm-git-gutter .cm-gutterElement.cm-git-modified {
+  width: 3px;
+  margin-left: 1px;
+  border-radius: 1px;
+}
+
+.cm-git-gutter .cm-gutterElement.cm-git-added {
+  background: var(--git-gutter-added);
+}
+
+.cm-git-gutter .cm-gutterElement.cm-git-modified {
+  background: var(--git-gutter-modified);
+}
+
+.cm-git-gutter .cm-gutterElement.cm-git-deleted {
+  position: relative;
+}
+
+.cm-git-gutter .cm-gutterElement.cm-git-deleted::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 0;
+  border: 4px solid transparent;
+  border-left-color: var(--git-gutter-deleted);
+  border-right-width: 0;
+}
+
+/* Code editor scrollbar: wider than the global one (14px), same accent thumb as the design system. */
+.cm-scroller::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+.cm-scroller::-webkit-scrollbar-thumb {
+  border-width: 3px 4px;
+}
+
+/* Overview ruler over the vertical bar (git + problems) and the minimap to its left */
+.cm-overview-ruler {
+  position: absolute;
+  right: 0;
+  z-index: 3;
+  width: 14px;
+  pointer-events: none;
+}
+
+.cm-minimap {
+  position: absolute;
+  z-index: 2;
+  width: 90px;
+  overflow: hidden;
+  background: var(--bg-100);
+  border-left: 1px solid var(--line);
+  cursor: default;
+  user-select: none;
+  touch-action: none;
+}
+
+.cm-minimap-canvas {
+  display: block;
+  width: 90px;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cm-minimap-slider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  pointer-events: none;
+  transition: background var(--duration-fast, 120ms) var(--ease-standard, ease);
+}
+
+.cm-minimap:hover .cm-minimap-slider {
+  background: color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+.cm-minimap.dragging .cm-minimap-slider {
+  background: color-mix(in srgb, var(--ink) 26%, transparent);
+}

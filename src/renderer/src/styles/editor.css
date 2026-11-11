@@ -1,0 +1,1579 @@
+/* ---------- Editor ---------- */
+
+/* Editor groups side by side; each group is a column with the tab strip and the content. */
+.editor-area {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  background: var(--bg-100);
+}
+
+.editor-group-slot {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Split: each group is positioned by the grid (EditorArea) and the dividers sit on top of the boundaries. */
+.editor-area.split {
+  position: relative;
+}
+
+.editor-area.split .editor-group-slot {
+  position: absolute;
+}
+
+.editor-sash {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+}
+
+.editor-sash-row {
+  width: 1px;
+  margin-left: -1px;
+}
+
+.editor-sash-column {
+  height: 1px;
+  margin-top: -1px;
+  flex-direction: column;
+}
+
+.editor-sash > .resizer {
+  flex: 1;
+}
+
+.editor-group {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+}
+
+/* Split: only the active group shows the brand stroke on the tab; in the other one the active tab is dimmed (no neon).
+   */
+.editor-area.split .editor-group:not(.active) .tab.active::after {
+  transform: scaleX(0);
+}
+
+.editor-area.split .editor-group:not(.active) .tab.active {
+  color: var(--ink-muted);
+}
+
+/* Drop target for a tab: the whole group (move into it) or half of an edge (split on that side). */
+.editor-content.drop-target::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--accent-soft);
+  opacity: 0.45;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.editor-content.drop-left::after {
+  right: 50%;
+}
+
+.editor-content.drop-right::after {
+  left: 50%;
+}
+
+.editor-content.drop-up::after {
+  bottom: 50%;
+}
+
+.editor-content.drop-down::after {
+  top: 50%;
+}
+
+/* Tab strip in bg-200, no bottom line: the active tab in bg-100 merges with the editor. */
+.tab-row {
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-1) var(--space-1) 0;
+  background: var(--bg-200);
+}
+
+.tab-bar {
+  height: 100%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1) 0 var(--space-3);
+  min-width: 0;
+  max-width: 240px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+/* --grad-brand stroke at the top of the active tab, growing from the center. */
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--grad-brand);
+  transform: scaleX(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.tab:hover {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.tab.active,
+.tab.active:hover {
+  background: var(--bg-100);
+  color: var(--ink);
+}
+
+.tab.active::after {
+  transform: scaleX(1);
+}
+
+.tab-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--ink-muted);
+}
+
+.tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-instant) var(--ease-standard);
+}
+
+.tab-close .wicon {
+  width: 12px;
+  height: 12px;
+}
+
+.tab:hover .tab-close,
+.tab.active .tab-close,
+.tab.dirty .tab-close,
+.tab-close:focus-visible {
+  opacity: 1;
+}
+
+.tab-close:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+/* Dirty tab: an ink-muted dot in place of the "x", which comes back on tab hover. */
+.tab-dirty {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-muted);
+}
+
+.tab-dirty + .tab-close-icon,
+.tab:hover .tab-dirty {
+  display: none;
+}
+
+.tab:hover .tab-dirty + .tab-close-icon {
+  display: block;
+}
+
+.editor-content {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+
+.code-editor {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  position: relative;
+}
+
+.code-editor[hidden] {
+  display: none;
+}
+
+/* ---------- Breadcrumbs ---------- */
+
+/* 22px strip above the editor: folders, file and the symbols at the cursor; the last segment in ink. */
+.breadcrumbs {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 22px;
+  min-width: 0;
+  padding: 0 var(--space-2);
+  background: var(--bg-100);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.breadcrumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  height: 20px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  color: inherit;
+}
+
+.breadcrumb-item:hover,
+.breadcrumb-item.open {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+div.breadcrumb:last-of-type .breadcrumb-item {
+  color: var(--ink);
+}
+
+.breadcrumb-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breadcrumb-icon {
+  flex: none;
+}
+
+.breadcrumb-item .codicon.breadcrumb-icon {
+  font-size: 14px;
+}
+
+.breadcrumb-separator {
+  flex: none;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.dropdown-menu.breadcrumb-menu {
+  left: 0;
+  right: auto;
+  min-width: 220px;
+  max-width: 420px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.breadcrumb-empty {
+  padding: var(--space-1) var(--space-2);
+  color: var(--ink-faint);
+}
+
+/* ---------- Sticky scroll ---------- */
+
+/* Strip over the top of the scroller with the pinned header lines; the gutter repeats the line numbers one. */
+.cm-sticky-scroll {
+  position: absolute;
+  left: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--bg-100);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--editor-font-family, var(--font-mono));
+  cursor: pointer;
+  user-select: none;
+}
+
+.cm-sticky-scroll[hidden] {
+  display: none;
+}
+
+.cm-sticky-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.cm-sticky-line:hover {
+  background: var(--editor-line-active);
+}
+
+.cm-sticky-text {
+  position: absolute;
+  top: 0;
+  white-space: pre;
+}
+
+.cm-sticky-gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  background: var(--bg-100);
+  color: var(--editor-gutter);
+  text-align: right;
+}
+
+.cm-sticky-line:hover .cm-sticky-gutter {
+  background: var(--editor-line-active);
+  color: var(--editor-gutter-active);
+}
+
+/* ---------- Markdown preview ---------- */
+
+.markdown-preview {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: auto;
+  background: var(--bg-100);
+  color: var(--ink);
+}
+
+/* Focus from a click (tabIndex -1) only serves the shortcut context: no ring around the whole document. */
+.markdown-preview:focus {
+  outline: none;
+}
+
+.markdown-body {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-8) var(--space-8);
+  font-family: var(--font-sans);
+  font-size: calc(var(--ui-font-size) * 14 / 13);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin: 1.6em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.markdown-body h1 {
+  font-size: 1.9em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--line);
+}
+
+.markdown-body h2 {
+  font-size: 1.45em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--line);
+}
+
+.markdown-body h3 {
+  font-size: 1.2em;
+}
+
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  color: var(--ink-muted);
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body pre,
+.markdown-body table,
+.markdown-body blockquote,
+.markdown-body details {
+  margin: 0 0 1em;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.6em;
+}
+
+.markdown-body li + li {
+  margin-top: 0.25em;
+}
+
+.markdown-body li > input[type='checkbox'] {
+  margin: 0 0.4em 0 -1.2em;
+  vertical-align: middle;
+}
+
+.markdown-body a {
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.markdown-body code,
+.markdown-body pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.markdown-body :not(pre) > code {
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  background: var(--bg-300);
+}
+
+.markdown-body pre {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--bg-200);
+  border: 1px solid var(--line);
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+.markdown-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.markdown-body blockquote {
+  padding: 0 var(--space-4);
+  border-left: 3px solid var(--line-strong);
+  color: var(--ink-muted);
+}
+
+.markdown-body hr {
+  margin: 1.5em 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown-body th,
+.markdown-body td {
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+}
+
+.markdown-body th {
+  background: var(--bg-200);
+  font-weight: 600;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body summary {
+  cursor: pointer;
+}
+
+.md-image-missing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 2px var(--space-2);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  line-height: 18px;
+}
+
+/* Mermaid diagrams (mermaid SVG, which brings its own theme colors) */
+.md-diagram {
+  margin: 0 0 1em;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.md-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.md-diagram-error {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--ink);
+  text-align: left;
+}
+
+.md-diagram-error pre {
+  margin: var(--space-1) 0 0;
+  color: var(--ink-muted);
+  white-space: pre-wrap;
+}
+
+/* Formulas: block ones scroll horizontally instead of overflowing the preview */
+.markdown-body .katex-display {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* GitHub alerts (> [!NOTE]) */
+.markdown-body .markdown-alert {
+  margin: 0 0 1em;
+  padding: var(--space-1) var(--space-4);
+  border-left: 3px solid var(--accent);
+  background: var(--bg-200);
+}
+
+.markdown-body .markdown-alert > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body .markdown-alert-title {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.markdown-body .markdown-alert-tip {
+  border-left-color: var(--success);
+}
+
+.markdown-body .markdown-alert-tip .markdown-alert-title {
+  color: var(--success);
+}
+
+.markdown-body .markdown-alert-warning,
+.markdown-body .markdown-alert-important {
+  border-left-color: var(--warning);
+}
+
+.markdown-body .markdown-alert-warning .markdown-alert-title,
+.markdown-body .markdown-alert-important .markdown-alert-title {
+  color: var(--warning);
+}
+
+.markdown-body .markdown-alert-caution {
+  border-left-color: var(--danger);
+}
+
+.markdown-body .markdown-alert-caution .markdown-alert-title {
+  color: var(--danger);
+}
+
+/* Footnotes */
+.markdown-body .footnotes {
+  margin-top: 2em;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: 0.9em;
+}
+
+.markdown-body .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.code-editor-host {
+  flex: 1;
+  min-height: 0;
+}
+
+.code-editor-host .cm-editor,
+.cm-editor {
+  user-select: text;
+}
+
+/* ---------- Rulers and whitespace (`editor.rulers`, `editor.renderWhitespace`) ---------- */
+
+.code-editor .cm-editor .cm-rulers {
+  pointer-events: none;
+}
+
+.code-editor .cm-editor .cm-ruler {
+  background: var(--line);
+}
+
+/* One dot per column: the background repeats every `1ch` of the editor (monospace) font. */
+.code-editor .cm-editor .cm-ws-space {
+  background-image: radial-gradient(
+    circle at 50% 55%,
+    color-mix(in srgb, var(--ink-faint) 70%, transparent) 0.08em,
+    transparent 0.1em
+  );
+  background-size: 1ch 100%;
+  background-repeat: repeat-x;
+}
+
+.code-editor .cm-editor .cm-ws-tab {
+  background: linear-gradient(
+      color-mix(in srgb, var(--ink-faint) 70%, transparent),
+      color-mix(in srgb, var(--ink-faint) 70%, transparent)
+    )
+    no-repeat center / calc(100% - 0.6ch) 1px;
+}
+
+.editor-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--bg-100);
+  color: var(--ink-muted);
+}
+
+/* ---------- LSP diagnostics (@codemirror/lint) ---------- */
+
+/* CodeMirror underlines with a fixed-color SVG; the text underline accepts the theme colors. */
+.code-editor .cm-editor .cm-lintRange {
+  background-image: none;
+  padding-bottom: 0;
+  text-decoration-line: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+}
+
+.code-editor .cm-editor .cm-lintRange-error {
+  text-decoration-style: wavy;
+  text-decoration-color: var(--diagnostic-error);
+}
+
+.code-editor .cm-editor .cm-lintRange-warning {
+  text-decoration-style: wavy;
+  text-decoration-color: var(--diagnostic-warning);
+}
+
+.code-editor .cm-editor .cm-lintRange-info {
+  text-decoration-style: wavy;
+  text-decoration-color: var(--diagnostic-info);
+}
+
+.code-editor .cm-editor .cm-lintRange-hint {
+  text-decoration-style: dotted;
+  text-decoration-color: var(--diagnostic-hint);
+}
+
+.code-editor .cm-editor .cm-lintRange-active {
+  background-color: var(--bg-400);
+}
+
+.code-editor .cm-editor .cm-lintPoint-error::after {
+  border-bottom-color: var(--diagnostic-error);
+}
+
+.code-editor .cm-editor .cm-lintPoint-warning::after {
+  border-bottom-color: var(--diagnostic-warning);
+}
+
+.code-editor .cm-editor .cm-lintPoint-info::after {
+  border-bottom-color: var(--diagnostic-info);
+}
+
+.code-editor .cm-editor .cm-lintPoint-hint::after {
+  border-bottom-color: var(--diagnostic-hint);
+}
+
+/* The tooltip is a child of the editor (or of the body): classes without the `.code-editor` scope. */
+.cm-tooltip.cm-tooltip-lint {
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  box-shadow: var(--shadow-pop);
+  max-width: 560px;
+  overflow: hidden;
+}
+
+.cm-tooltip-lint .cm-diagnostic {
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+
+.cm-tooltip-lint .cm-diagnostic-error {
+  border-left-color: var(--diagnostic-error);
+}
+
+.cm-tooltip-lint .cm-diagnostic-warning {
+  border-left-color: var(--diagnostic-warning);
+}
+
+.cm-tooltip-lint .cm-diagnostic-info {
+  border-left-color: var(--diagnostic-info);
+}
+
+.cm-tooltip-lint .cm-diagnostic-hint {
+  border-left-color: var(--diagnostic-hint);
+}
+
+.cm-tooltip-lint .cm-diagnosticSource {
+  color: var(--ink-muted);
+  opacity: 1;
+  font-size: 90%;
+  margin-left: 6px;
+}
+
+/* ---------- LSP features in the editor: completion, hover, signature, lightbulb, menu, rename ---------- */
+
+/* Kind icons of each completion item (codicons); the color comes from the group (syntax palette). */
+.code-editor .cm-editor .cm-completionKind {
+  margin-right: 6px;
+  width: 16px;
+  font-size: 14px;
+  text-align: center;
+  color: var(--ink-muted);
+  opacity: 1;
+}
+
+.code-editor .cm-editor .cm-completionKind.kind-function {
+  color: var(--syn-function);
+}
+
+.code-editor .cm-editor .cm-completionKind.kind-variable {
+  color: var(--syn-property);
+}
+
+.code-editor .cm-editor .cm-completionKind.kind-type {
+  color: var(--syn-type);
+}
+
+.code-editor .cm-editor .cm-tooltip-autocomplete .cm-completionDetail {
+  max-width: 240px;
+  margin-left: 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  font-style: normal;
+  color: var(--ink-muted);
+}
+
+.code-editor .cm-editor .cm-tooltip.cm-completionInfo {
+  max-width: 420px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 6px 10px;
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+/* LSP tooltips (hover, signature, menu, rename): the element itself is the `.cm-tooltip`. */
+.code-editor .cm-editor .lsp-hover,
+.code-editor .cm-editor .lsp-signature,
+.code-editor .cm-editor .lsp-menu,
+.code-editor .cm-editor .lsp-rename {
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: 1.5;
+}
+
+.code-editor .cm-editor .lsp-hover {
+  max-width: 560px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 6px 10px;
+}
+
+/* Documentation markdown. */
+.lsp-doc > :first-child {
+  margin-top: 0;
+}
+
+.lsp-doc > :last-child {
+  margin-bottom: 0;
+}
+
+/* Top-level blocks of the Claude markdown: no box of their own, so the spacing works as in a single block. */
+.claude-md-block {
+  display: contents;
+}
+
+.claude-md-block:first-child > :first-child {
+  margin-top: 0;
+}
+
+.claude-md-block:last-child > :last-child,
+.claude-md-block:nth-last-child(2):has(+ .claude-md-block:empty) > :last-child {
+  margin-bottom: 0;
+}
+
+.lsp-doc p,
+.lsp-doc ul,
+.lsp-doc ol,
+.lsp-doc pre {
+  margin: 0 0 6px;
+}
+
+.lsp-doc ul,
+.lsp-doc ol {
+  padding-left: 20px;
+}
+
+.lsp-doc hr {
+  margin: 6px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.lsp-doc code,
+.lsp-doc pre {
+  font-family: var(--editor-font-family, var(--font-mono));
+  font-size: var(--text-label);
+}
+
+.lsp-doc pre {
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-100);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.lsp-doc pre code {
+  background: none;
+  padding: 0;
+}
+
+.lsp-doc :not(pre) > code {
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--bg-100);
+}
+
+.lsp-doc a {
+  color: var(--accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lsp-doc a:not([data-href]) {
+  color: inherit;
+  cursor: default;
+}
+
+.lsp-doc a[data-href]:hover {
+  text-decoration: underline;
+}
+
+.lsp-info-detail {
+  margin-bottom: 4px;
+  font-family: var(--editor-font-family, var(--font-mono));
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+/* Preview of snippets and Emmet in the completion info panel. */
+.snippet-preview {
+  margin: 0;
+  max-height: 240px;
+  overflow: auto;
+  font-family: var(--editor-font-family, var(--font-mono));
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* Signature help. */
+.code-editor .cm-editor .lsp-signature {
+  max-width: 560px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 4px 8px;
+}
+
+.lsp-signature-label {
+  font-family: var(--editor-font-family, var(--font-mono));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.lsp-signature-active {
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.lsp-signature-count {
+  margin-left: 8px;
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+}
+
+.lsp-signature .lsp-doc {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+/* Lightbulb in the gutter and ⌘-click. */
+.cm-lightbulb-gutter {
+  width: 18px;
+}
+
+.cm-lightbulb-gutter .cm-gutterElement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lsp-lightbulb {
+  color: var(--warning);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cm-lsp-link {
+  text-decoration: underline;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* Inlay hints: discreet pill in the middle of the code, smaller than the text. */
+.cm-inlay-hint {
+  display: inline-block;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--editor-inlay-hint-bg);
+  color: var(--editor-inlay-hint);
+  font-size: 0.85em;
+  line-height: 1.3;
+  vertical-align: 0.05em;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.cm-inlay-hint-pad-left {
+  margin-left: 0.4ch;
+}
+
+.cm-inlay-hint-pad-right {
+  margin-right: 0.4ch;
+}
+
+/* Occurrences of the symbol under the cursor (`textDocument/documentHighlight`). */
+.cm-lsp-highlight-text {
+  background-color: var(--editor-highlight-text);
+}
+
+.cm-lsp-highlight-read {
+  background-color: var(--editor-highlight-read);
+}
+
+.cm-lsp-highlight-write {
+  background-color: var(--editor-highlight-write);
+}
+
+/* Semantic highlighting: its marks sit inside Lezer's, so their color wins. Types without a rule keep Lezer's. */
+.cm-sem-namespace,
+.cm-sem-type,
+.cm-sem-class,
+.cm-sem-enum,
+.cm-sem-interface,
+.cm-sem-struct,
+.cm-sem-typeParameter {
+  color: var(--syn-type);
+}
+
+.cm-sem-parameter {
+  color: var(--syn-parameter);
+}
+
+.cm-sem-variable {
+  color: var(--syn-variable);
+}
+
+.cm-sem-property,
+.cm-sem-event {
+  color: var(--syn-property);
+}
+
+.cm-sem-enumMember,
+.cm-sem-variable.cm-sem-mod-readonly,
+.cm-sem-label {
+  color: var(--syn-constant);
+}
+
+.cm-sem-function,
+.cm-sem-method,
+.cm-sem-member,
+.cm-sem-decorator {
+  color: var(--syn-function);
+}
+
+.cm-sem-macro,
+.cm-sem-keyword,
+.cm-sem-modifier {
+  color: var(--syn-keyword);
+}
+
+.cm-sem-comment {
+  color: var(--syn-comment);
+}
+
+.cm-sem-string {
+  color: var(--syn-string);
+}
+
+.cm-sem-number {
+  color: var(--syn-number);
+}
+
+.cm-sem-regexp {
+  color: var(--syn-constant);
+}
+
+.cm-sem-operator {
+  color: var(--syn-operator);
+}
+
+.cm-sem-mod-deprecated {
+  text-decoration: line-through;
+}
+
+/* Quick fix menu. */
+.code-editor .cm-editor .lsp-menu {
+  min-width: 220px;
+  max-width: 480px;
+  max-height: 260px;
+  overflow: auto;
+  padding: var(--space-1);
+}
+
+.lsp-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.lsp-menu-item .codicon {
+  color: var(--warning);
+}
+
+.lsp-menu-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lsp-menu-reason {
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  white-space: nowrap;
+}
+
+.lsp-menu-item:hover,
+.lsp-menu-item.selected {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.lsp-menu-item.disabled {
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.lsp-menu-item.disabled:hover {
+  background: transparent;
+}
+
+/* Rename symbol (F2). */
+.code-editor .cm-editor .lsp-rename {
+  padding: 3px;
+}
+
+.lsp-rename-input {
+  width: 220px;
+  height: 24px;
+  padding: 0 6px;
+  background: var(--bg-100);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-family: var(--editor-font-family, var(--font-mono));
+  font-size: var(--editor-font-size, 13px);
+  outline: none;
+}
+
+/* References view. */
+.references-title {
+  padding: 4px 12px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reference-preview {
+  font-family: var(--editor-font-family, var(--font-mono));
+  white-space: pre;
+}
+
+.reference-preview mark {
+  background: var(--editor-match);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.diff-editor {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.diff-header {
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.diff-host {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.diff-host .cm-mergeView {
+  min-height: 100%;
+}
+
+.diff-host .cm-editor {
+  height: auto;
+}
+
+.diff-host .cm-merge-spacer {
+  background: var(--bg-200);
+}
+
+/* ---------- Image viewer ---------- */
+
+.image-viewer {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-100);
+  outline: none;
+}
+
+/* Checkerboard so transparency shows; `margin: auto` on the child centers without clipping what overflows the area when
+   zooming in. */
+.image-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: auto;
+  background: repeating-conic-gradient(var(--bg-200) 0 25%, var(--bg-100) 0 50%) 0 0 / 16px 16px;
+}
+
+.image-canvas {
+  margin: auto;
+  flex: none;
+  max-width: none;
+  user-select: none;
+}
+
+.image-canvas[data-pixelated] {
+  image-rendering: pixelated;
+}
+
+.image-error {
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--bg-300);
+  color: var(--ink-muted);
+}
+
+.image-footer {
+  flex-shrink: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-3);
+  background: var(--bg-200);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+}
+
+.image-info,
+.image-zoom-value {
+  font-family: var(--font-mono);
+}
+
+.image-zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.image-zoom-value {
+  min-width: 4ch;
+  text-align: center;
+}
+
+.image-zoom .button-secondary[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+/* Code lens: discreet line above the declaration (CodeMirror block). */
+.code-editor .cm-editor .cm-code-lens {
+  color: var(--ink-faint);
+  font-family: var(--font-sans);
+  font-size: calc(var(--editor-font-size, 13px) * 0.85);
+  line-height: 1.6;
+  white-space: pre;
+  user-select: none;
+  cursor: default;
+}
+
+.cm-code-lens-sep {
+  padding: 0 6px;
+  opacity: 0.6;
+}
+
+.cm-code-lens-item.action {
+  cursor: pointer;
+}
+
+.cm-code-lens-item.action:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
+}
+
+/* Peek: inline preview below the line (CodeMirror block). */
+.code-editor .cm-editor .lsp-peek {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  margin: 2px 0 4px;
+  border-top: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  background: var(--bg-200);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: 1.5;
+  white-space: normal;
+  cursor: default;
+  outline: none;
+}
+
+.lsp-peek-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 26px;
+  flex-shrink: 0;
+  padding: 0 var(--space-1) 0 var(--space-3);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-300);
+}
+
+.lsp-peek-file {
+  color: var(--ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lsp-peek-dir,
+.lsp-peek-title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lsp-peek-title {
+  flex: 1;
+  color: var(--ink-faint);
+}
+
+.lsp-peek-count {
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.lsp-peek-action {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.lsp-peek-action:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.lsp-peek-action:focus-visible {
+  outline: 1px solid var(--focus-ring);
+}
+
+.lsp-peek-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.lsp-peek-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  background: var(--bg-100);
+  color: var(--syn-variable, var(--ink));
+  font-family: var(--editor-font-family, var(--font-mono));
+  font-size: var(--editor-font-size, 13px);
+  line-height: 1.5;
+}
+
+.lsp-peek-line {
+  display: flex;
+  white-space: pre;
+}
+
+.lsp-peek-line.target {
+  background: var(--editor-line-active);
+}
+
+.lsp-peek-gutter {
+  flex-shrink: 0;
+  min-width: 4ch;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  color: var(--editor-gutter);
+  text-align: right;
+  user-select: none;
+}
+
+.lsp-peek-match {
+  background: var(--editor-match);
+  border-radius: 2px;
+}
+
+.lsp-peek-message {
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+}
+
+.lsp-peek-list {
+  width: 32%;
+  min-width: 180px;
+  max-width: 360px;
+  flex-shrink: 0;
+  overflow: auto;
+  border-left: 1px solid var(--line);
+  outline: none;
+}
+
+.lsp-peek-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  height: 22px;
+  padding: 0 var(--space-2);
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.lsp-peek-item:hover {
+  background: var(--bg-300);
+}
+
+.lsp-peek-item.selected {
+  background: var(--bg-400);
+}
+
+.lsp-peek-list:focus-visible .lsp-peek-item.selected {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: -1px;
+}
+
+.lsp-peek-item-name {
+  color: var(--ink);
+}
+
+.lsp-peek-item-line {
+  color: var(--ink-faint);
+}
+
+.lsp-peek-item-text {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-muted);
+  font-family: var(--editor-font-family, var(--font-mono));
+  text-overflow: ellipsis;
+}
+
+/* Small Markdown editor (`MiniMarkdownEditor`): text field with the editor theme. */
+.mini-editor {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+  overflow: hidden;
+}
+
+.mini-editor:focus-within {
+  border-color: var(--focus-ring);
+}
+
+.mini-editor .cm-editor {
+  flex: 1;
+  min-height: 0;
+  background: transparent;
+}
+
+.mini-editor .cm-editor.cm-focused {
+  outline: none;
+}
+
+.mini-editor .cm-scroller {
+  padding: var(--space-1) 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.modal.image-lightbox {
+  width: min(960px, 100%);
+  height: calc(100% - 32px);
+  max-height: none;
+}
+
+.image-lightbox-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: auto;
+  background: repeating-conic-gradient(var(--bg-200) 0 25%, var(--bg-100) 0 50%) 0 0 / 16px 16px;
+}
+
+.image-lightbox-stage:focus {
+  outline: none;
+}
+
+.image-lightbox-img {
+  margin: auto;
+  flex: none;
+  cursor: zoom-in;
+}

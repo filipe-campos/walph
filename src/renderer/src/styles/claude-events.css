@@ -1,0 +1,220 @@
+/* MCP server request (elicitation): reuses the question card; only the form and the URL here. */
+.claude-elicit-title {
+  color: var(--ink);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.claude-elicit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.claude-elicit-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.claude-elicit-field.inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.claude-elicit-field.inline .claude-question-hint {
+  flex-basis: 100%;
+  margin-top: 0;
+}
+
+.claude-elicit-label {
+  color: var(--ink);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.claude-elicit-req {
+  color: var(--danger);
+}
+
+.claude-elicit-field .claude-question-hint {
+  margin-top: 0;
+}
+
+.claude-elicit-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.claude-elicit-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 22px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.claude-elicit-option input {
+  flex: none;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.claude-elicit-error {
+  color: var(--danger);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.claude-card-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.claude-elicit-url-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.claude-elicit-host {
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg-100);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: calc(var(--ui-font-size) * 14 / 13);
+  font-weight: 600;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.claude-elicit-url {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+
+.claude-elicitation .claude-question-hint {
+  margin-top: 0;
+}
+
+/* Usage limit: compact strip above the prompt box (warning for a notice, danger when the limit is reached). */
+.claude-ratelimit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin: 0 var(--space-3) var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.claude-ratelimit.warning {
+  background: var(--warning-soft);
+  box-shadow: inset 0 0 0 1px var(--warning);
+}
+
+.claude-ratelimit.error {
+  background: var(--danger-soft);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+
+.claude-ratelimit .wicon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.claude-ratelimit.warning .wicon {
+  color: var(--warning);
+}
+
+.claude-ratelimit.error .wicon {
+  color: var(--danger);
+}
+
+.claude-ratelimit-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* API retry and blocked call: discreet list rows. */
+.claude-retry,
+.claude-denied {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--space-1) 0;
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.claude-retry .wicon,
+.claude-denied .wicon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.claude-denied .wicon {
+  color: var(--warning);
+}
+
+.claude-denied-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-tool-elapsed {
+  flex: none;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  white-space: nowrap;
+}
+
+/* Next prompt suggestion: ghost text in the empty box (Tab accepts). */
+.claude-input-ghost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--ink-faint);
+}
+
+.claude-input-ghost-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-input-ghost-key {
+  flex: none;
+  padding: 0 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: 14px;
+}

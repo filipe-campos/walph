@@ -1,0 +1,288 @@
+/* ---------- Status bar (28px, bg-000, full width) ---------- */
+
+.status-bar {
+  container: statusbar / inline-size;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  background: var(--bg-000);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.status-left,
+.status-right {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* Nothing wraps: the right side keeps its size and only the left one shrinks (path and commit message truncate). */
+.status-right {
+  flex: none;
+}
+
+.status-item {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+button.status-item:hover:not(:disabled) {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.status-item .wicon {
+  width: 13px;
+  height: 13px;
+}
+
+.status-item .codicon {
+  font-size: 16px;
+}
+
+.status-item.lsp-error .codicon {
+  color: var(--danger);
+}
+
+/* Item with an upward menu (path, indentation): the container positions the popup, the button is the `.status-item`. */
+.status-menu {
+  position: relative;
+  display: flex;
+  flex: none;
+  min-width: 0;
+}
+
+.status-menu > .status-item {
+  min-width: 0;
+}
+
+.status-menu > .status-item.open {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.dropdown-menu.status-popup {
+  top: auto;
+  bottom: calc(100% + 4px);
+  right: auto;
+  left: 0;
+  min-width: 248px;
+}
+
+.dropdown-menu.status-popup.right {
+  right: 0;
+  left: auto;
+}
+
+.status-popup-check {
+  display: inline-flex;
+  flex: none;
+  width: 14px;
+  color: var(--accent);
+}
+
+/* Project path: upper folders in ink-faint, the project one in ink-muted; cut from the start. */
+.s-path {
+  flex: 0 1 auto;
+  max-width: 320px;
+}
+
+.s-path > .status-item {
+  flex: 0 1 auto;
+  max-width: 100%;
+  gap: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.s-path .wicon {
+  flex: none;
+  margin-right: var(--space-1);
+}
+
+.status-path-parent {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+  color: var(--ink-faint);
+}
+
+.status-path-leaf {
+  flex: none;
+}
+
+.status-branch {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--ink);
+}
+
+/* A very long branch truncates with ellipsis instead of running over the right side (the popup needs visible overflow).
+   */
+.status-branch-dirty {
+  flex: none;
+  margin-left: 1px;
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.status-branch-name {
+  min-width: 0;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-branch .wicon {
+  color: var(--accent);
+}
+
+/* ↓ pull · ↑ push: the side with commits is ink with the accent arrow; at zero, ink-faint. */
+.status-sync {
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.status-sync > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  color: var(--ink-faint);
+}
+
+.status-sync .wicon {
+  width: 11px;
+  height: 11px;
+}
+
+.status-sync > span.pending {
+  color: var(--ink);
+}
+
+.status-sync > span.pending .wicon {
+  color: var(--accent);
+}
+
+.status-language-mark {
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+
+/* Syncing: the arrows breathe (opacity/scale), one half a cycle after the other. The text "Syncing…" goes in the
+   tooltip and in a `role="status"` for screen readers: the state never depends on motion alone. */
+@keyframes status-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.88);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.status-sync.syncing:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
+.status-sync.syncing .wicon {
+  animation: status-breathe 1.6s var(--ease-standard) infinite;
+}
+
+.status-sync.syncing > span:nth-of-type(2) .wicon {
+  animation-delay: 0.8s;
+}
+
+/* Last commit: avatar with the author's initials, "Ana Souza, 2 h ago" and the subject (truncates with ellipsis). */
+.status-commit {
+  flex: 0 1 auto;
+  min-width: 0;
+  /* Shrinks by truncating its own text: without this the author spills over the cursor on the right side. */
+  overflow: hidden;
+}
+
+.status-avatar {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--bg-300);
+  color: var(--ink);
+  font-size: calc(var(--ui-font-size) * 8 / 13);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.status-commit-author {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-commit-message {
+  min-width: 0;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-faint);
+}
+
+/* Width of the bar itself (not the window's): first the commit message goes away, then indentation and encoding, the
+   author, the path, the line ending and finally the commit. Branch, sync and cursor always stay. */
+@container statusbar (max-width: 1280px) {
+  .s-commit-message {
+    display: none;
+  }
+}
+
+@container statusbar (max-width: 1060px) {
+  .s-indent,
+  .s-encoding {
+    display: none;
+  }
+}
+
+@container statusbar (max-width: 900px) {
+  .s-commit-author {
+    display: none;
+  }
+}
+
+@container statusbar (max-width: 780px) {
+  .s-path {
+    display: none;
+  }
+}
+
+@container statusbar (max-width: 640px) {
+  .s-eol {
+    display: none;
+  }
+}
+
+@container statusbar (max-width: 540px) {
+  .s-commit {
+    display: none;
+  }
+}

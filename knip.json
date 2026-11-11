@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/main/claude/fake/index.ts",
+    "src/main/lsp/fixtures/*",
+    "e2e/**/*.ts",
+    "e2e/fixtures/*",
+    "scripts/*.mjs"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "e2e/**/*.ts", "scripts/*.mjs"],
+  "ignoreIssues": {
+    "src/shared/types/**": ["types"]
+  },
+  "ignoreDependencies": ["tsserver-bundled", "typescript-language-server"],
+  "ignoreBinaries": ["mkfifo"]
+}

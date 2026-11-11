@@ -1,0 +1,143 @@
+# Release build when a `v*` tag is created: macOS, Windows and Linux installers are uploaded to a draft GitHub
+# Release, published by the last job when the three finish. Signing and notarization on macOS only happen if the
+# secrets exist (no secret lives in the repository). The draft is only created if the CI of the tag's commit passed.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  # A single draft created before the matrix: three jobs creating the release at the same time could duplicate it.
+  draft:
+    name: create the draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      # The tag is usually pushed right after main: waits for the CI run to appear and finish instead of failing early.
+      - name: Require green CI on the tag's commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          run=""
+          for _ in $(seq 100); do
+            run="$(gh run list --repo "$GITHUB_REPOSITORY" --commit "$GITHUB_SHA" --workflow ci.yml --event push \
+              --json databaseId,status,conclusion --limit 1 --jq '.[0] // empty | "\(.databaseId) \(.status) \(.conclusion)"')"
+            case "$run" in *" completed "*) break ;; esac
+            sleep 30
+          done
+          read -r id status conclusion <<< "$run"
+          if [ -z "$id" ]; then
+            echo "::error::No CI run (push) for commit $GITHUB_SHA. Push the commit to main and re-run this workflow."
+            exit 1
+          fi
+          if [ "$status" != "completed" ]; then
+            echo "::error::The CI of commit $GITHUB_SHA has not finished yet (run $id). Re-run this workflow when it finishes."
+            exit 1
+          fi
+          if [ "$conclusion" = "cancelled" ]; then
+            echo "::error::The CI of commit $GITHUB_SHA was cancelled (run $id), probably by a newer push to main. Run 'gh run rerun $id' and re-run this workflow."
+            exit 1
+          fi
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::The CI of commit $GITHUB_SHA finished as '$conclusion' (run $id). Fix main before releasing."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      # electron-builder publishes to the release `v<package.json version>`: the tag must match.
+      - name: Check the version
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          if [ "$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::The tag $GITHUB_REF_NAME does not match the package.json version ($version)."
+            exit 1
+          fi
+
+      # A tag with `-` (e.g. v0.2.0-beta.1) becomes a prerelease: the stable channel only reads `/releases/latest`.
+      # Re-running the workflow reuses the existing draft.
+      - name: Release draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then exit 0; fi
+          flags=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft --title "$GITHUB_REF_NAME" \
+            --generate-notes "${flags[@]}"
+
+  dist:
+    name: dist (${{ matrix.os }})
+    needs: draft
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # electron-builder expects the path of the .p8 file in APPLE_API_KEY, not its content.
+      - name: Notarization key
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY }}
+        run: |
+          if [ -n "$APPLE_API_KEY_CONTENT" ]; then
+            key="$RUNNER_TEMP/AuthKey.p8"
+            printf '%s' "$APPLE_API_KEY_CONTENT" > "$key"
+            echo "APPLE_API_KEY=$key" >> "$GITHUB_ENV"
+          fi
+
+      # Developer ID certificate (.p12 in base64) and password; without them the app has no Developer ID signature.
+      # Only exports when the secret exists: an empty CSC_LINK becomes the current directory and the build fails with
+      # "not a file".
+      - name: Signing certificate
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          MAC_CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          MAC_CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+        run: |
+          if [ -n "$MAC_CSC_LINK" ]; then
+            echo "CSC_LINK=$MAC_CSC_LINK" >> "$GITHUB_ENV"
+            echo "CSC_KEY_PASSWORD=$MAC_CSC_KEY_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Package and publish
+        run: pnpm dist --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Notarization (App Store Connect API); only runs with all three present.
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+
+  publish:
+    name: publish the release
+    needs: dist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Take the release out of draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft=false

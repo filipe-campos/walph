@@ -1,0 +1,82 @@
+/* Loading splash: lives inside #root and disappears when React does the first render. Loaded in the <head>, before the
+   modules (no inline because of the CSP), and uses the colors themeBoot.js applies on :root. */
+html,
+body {
+  background: var(--bg-000, #0a090f);
+}
+
+.boot-splash {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg-000, #0a090f);
+}
+
+.boot-splash-line {
+  position: relative;
+  width: 96px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 1px;
+  background: var(--line, rgba(255, 255, 255, 0.08));
+  /* Only shows up if loading takes longer than ~150 ms: a quick start does not flash a splash. */
+  opacity: 0;
+  animation: boot-splash-in 160ms ease-out 150ms forwards;
+}
+
+.boot-splash-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-3, #4fd1ff), var(--accent, #8a7bff), var(--accent-2, #7b7cff));
+  animation: boot-splash-sweep 1.1s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+/* First render of the app: fades in briefly over the same background, without a hard cut. */
+html.app-ready #root {
+  animation: app-fade-in 140ms ease-out;
+}
+
+@keyframes boot-splash-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes boot-splash-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-splash-line {
+    animation: none;
+    opacity: 1;
+  }
+
+  .boot-splash-line::after {
+    width: 100%;
+    animation: none;
+    opacity: 0.5;
+  }
+
+  html.app-ready #root {
+    animation: none;
+  }
+}

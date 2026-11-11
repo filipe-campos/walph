@@ -1,0 +1,59 @@
+name: Feature request
+description: Suggest a new feature or an improvement to an existing one
+title: '[Feature]: '
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! Please search the [existing issues](https://github.com/filipe-campos/walph/issues) first.
+        For open-ended ideas or questions, [Discussions](https://github.com/filipe-campos/walph/discussions) may be a better place.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what gets in the way today?
+      placeholder: When I ..., I have to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should it work? Describe the flow, shortcuts or UI you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you use today, or how other editors and IDEs handle it.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Editor
+        - Explorer
+        - Search
+        - Git
+        - Terminal
+        - Language servers (LSP)
+        - Claude panel
+        - Containers (Docker)
+        - Workspaces and windows
+        - Settings and keybindings
+        - Packaging and updates
+        - Other
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to implement this myself

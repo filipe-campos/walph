@@ -1,0 +1,400 @@
+/* Debugger: Run and Debug view, floating bar, Debug Console and the editor breakpoint gutter. */
+
+/* ---------- Run and Debug view ---------- */
+
+.debug-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.debug-launch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2) var(--space-2) var(--space-3);
+}
+
+.debug-launch-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.debug-launch-select .select {
+  width: 100%;
+}
+
+.debug-launch-start {
+  color: var(--success);
+}
+
+.debug-launch-stop {
+  color: var(--danger);
+}
+
+.debug-config-error {
+  margin: 0 var(--space-3) var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: var(--text-caption);
+  white-space: pre-wrap;
+}
+
+.debug-sections {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.debug-empty {
+  padding: var(--space-1) var(--space-4);
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+}
+
+.debug-hint {
+  padding-bottom: var(--space-2);
+}
+
+.debug-indent-2 {
+  padding-left: 40px;
+}
+
+.debug-tree .tree-row {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.debug-value-row {
+  gap: var(--space-1);
+}
+
+.debug-value-name {
+  flex-shrink: 0;
+  color: var(--accent-strong);
+}
+
+.debug-scope-row .debug-value-name {
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.debug-value-name::after {
+  content: ':';
+  color: var(--ink-faint);
+}
+
+.debug-scope-row .debug-value-name::after {
+  content: none;
+}
+
+.debug-value-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+
+.debug-value-row.error .debug-value-text {
+  color: var(--danger);
+}
+
+.tree-row:focus-within > .row-actions,
+.tree-row:hover > .row-actions {
+  display: flex;
+}
+
+.debug-watch-edit {
+  padding-left: 24px;
+}
+
+.debug-inline-input {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  padding: 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.debug-session,
+.debug-thread,
+.debug-frame {
+  font-family: var(--font-sans);
+}
+
+.debug-session {
+  color: var(--ink);
+}
+
+.debug-thread {
+  padding-left: 20px;
+}
+
+.debug-frame {
+  padding-left: 40px;
+}
+
+.debug-frame.active {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.debug-frame.subtle {
+  color: var(--ink-faint);
+}
+
+.debug-session-name,
+.debug-thread-name,
+.debug-frame-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.debug-state,
+.debug-frame-source {
+  margin-left: auto;
+  padding-left: var(--space-2);
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+}
+
+.debug-breakpoint {
+  padding-left: var(--space-3);
+  font-family: var(--font-sans);
+}
+
+.debug-breakpoint-check {
+  margin: 0;
+  accent-color: var(--danger);
+}
+
+.debug-breakpoint.disabled .tree-label {
+  color: var(--ink-faint);
+}
+
+.debug-breakpoint.unverified .tree-label {
+  font-style: italic;
+}
+
+.debug-breakpoint-dir,
+.debug-breakpoint-detail {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+}
+
+.debug-breakpoint-detail {
+  font-family: var(--font-mono);
+}
+
+/* ---------- Floating bar ---------- */
+
+.debug-toolbar {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop);
+}
+
+.debug-toolbar .codicon-debug-continue,
+.debug-toolbar .codicon-debug-restart {
+  color: var(--success);
+}
+
+.debug-toolbar .codicon-debug-stop {
+  color: var(--danger);
+}
+
+.debug-toolbar .codicon-debug-pause,
+.debug-toolbar [class*='codicon-debug-step'] {
+  color: var(--accent);
+}
+
+.debug-toolbar button:disabled .codicon {
+  color: var(--ink-faint);
+}
+
+/* ---------- Debug Console ---------- */
+
+.debug-console {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.debug-console-output {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  outline: none;
+}
+
+.debug-console-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ink);
+}
+
+.debug-console-line.output.console {
+  color: var(--ink-muted);
+}
+
+.debug-console-line.output.stderr,
+.debug-console-line.error {
+  color: var(--danger);
+}
+
+.debug-console-line.output.important {
+  color: var(--accent-strong);
+}
+
+.debug-console-line.input {
+  color: var(--ink-muted);
+}
+
+.debug-console-line.input::before {
+  content: '› ';
+  color: var(--accent);
+}
+
+.debug-console-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  height: 26px;
+  padding: 0 var(--space-3);
+  border-top: 1px solid var(--line);
+  color: var(--accent);
+}
+
+.debug-console-input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  outline: none;
+}
+
+/* ---------- Editor: breakpoint gutter, stopped line and condition field ---------- */
+
+.cm-gutter.cm-breakpoint-gutter {
+  width: 14px;
+  cursor: pointer;
+}
+
+.cm-breakpoint-gutter .cm-gutterElement {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Preview on hover, like in VS Code. */
+.cm-breakpoint-gutter .cm-gutterElement:not(.cm-bp-line):hover::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+.cm-bp-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+.cm-bp-unverified {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-faint);
+}
+
+.cm-bp-disabled {
+  background: var(--ink-faint);
+}
+
+/* Conditional: a dash in the middle of the dot. */
+.cm-bp-conditional {
+  background:
+    linear-gradient(var(--bg-100), var(--bg-100)) center / 5px 1.5px no-repeat,
+    var(--danger);
+}
+
+/* Logpoint: diamond. */
+.cm-bp-log {
+  border-radius: 1px;
+  transform: rotate(45deg) scale(0.85);
+}
+
+.cm-debug-arrow {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warning);
+  font-size: 13px;
+}
+
+.cm-debug-arrow {
+  pointer-events: none;
+}
+
+.cm-line.cm-debug-stopped-line {
+  background: var(--warning-soft);
+  box-shadow: inset 2px 0 0 var(--warning);
+}
+
+.cm-breakpoint-widget {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 2px 0;
+  padding: 3px var(--space-2);
+  border-top: 1px solid var(--danger);
+  border-bottom: 1px solid var(--danger);
+  background: var(--bg-200);
+  font-family: var(--font-sans);
+}
+
+.cm-breakpoint-mode {
+  flex-shrink: 0;
+  height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg-400);
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.cm-breakpoint-input {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  padding: 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}

@@ -1,0 +1,512 @@
+/* ---------- Modal (Settings and destructive confirmations) ---------- */
+
+.modal-backdrop {
+  -webkit-app-region: no-drag;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-6);
+  background: color-mix(in srgb, var(--bg-000) 62%, transparent);
+  -webkit-backdrop-filter: blur(6px) saturate(0.9);
+  backdrop-filter: blur(6px) saturate(0.9);
+  animation: fade-in var(--duration-fast) var(--ease-standard);
+}
+
+.modal {
+  width: 480px;
+  max-width: 100%;
+  max-height: min(640px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop), var(--shadow-neon);
+  overflow: hidden;
+  animation: rise-in var(--duration-base) var(--ease-out) both;
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.modal.danger {
+  border-color: var(--danger);
+}
+
+.modal-header {
+  min-height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-3) var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-title {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.modal-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.modal-footer {
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--line);
+  background: var(--bg-200);
+}
+
+/* ---------- Controls: Switch and Select ---------- */
+
+.switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  flex: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--bg-100);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.switch.on {
+  border-color: transparent;
+  background: var(--accent);
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.switch.on .switch-thumb {
+  transform: translateX(14px);
+  background: var(--on-accent);
+}
+
+.switch:focus-visible {
+  outline-offset: 2px;
+}
+
+.select {
+  width: 220px;
+  max-width: 100%;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+  color: var(--ink);
+  font-size: var(--text-label);
+  text-align: left;
+}
+
+.select:hover:not(:disabled),
+.select.open {
+  border-color: var(--accent);
+}
+
+.select-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-chevron {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--ink-muted);
+  transform: rotate(90deg);
+}
+
+.select-list {
+  position: fixed;
+  z-index: 110;
+  overflow-y: auto;
+  padding: var(--space-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop);
+  animation: rise-in var(--duration-fast) var(--ease-out) both;
+}
+
+.select-option {
+  height: 28px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label);
+  cursor: pointer;
+}
+
+.select-option.active {
+  background: var(--bg-400);
+}
+
+.select-option.selected {
+  color: var(--accent);
+}
+
+.select-option .wicon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- Settings modal ---------- */
+
+/* DS "lg": 800px, height bounded by the window; the modal is the container of the responsive rules below. */
+.modal.settings-modal {
+  container: settings / inline-size;
+  width: 800px;
+  max-width: 100%;
+  height: min(560px, calc(100% - 32px));
+}
+
+.settings-modal .modal-body {
+  overflow: hidden;
+}
+
+.settings-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.settings-nav {
+  width: 196px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: var(--bg-200);
+}
+
+.settings-nav-item {
+  position: relative;
+  flex: none;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  font-size: var(--ui-font-size);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.settings-nav-item:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+/* Active: elevated background and a gradient bar on the left edge (the text stays ink: the bar is the highlight). */
+.settings-nav-item.active,
+.settings-nav-item.active:hover {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.settings-nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  transform: scaleY(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.settings-nav-item.active::before {
+  transform: none;
+}
+
+.settings-nav-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.toasts.over-modal {
+  position: fixed;
+  z-index: 120;
+}
+
+.settings-content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding: var(--space-2) var(--space-6) var(--space-4);
+}
+
+.settings-scope {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-scope-hint {
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.segmented {
+  display: inline-flex;
+  flex: none;
+  padding: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+}
+
+.segmented-item {
+  height: 22px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.segmented-item.on {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.setting-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.setting-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.setting-label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.setting-description,
+.setting-note {
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.setting-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.setting-row.disabled .setting-control {
+  opacity: 0.55;
+}
+
+.setting-control {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 60%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Fixed column for "Restore default": the controls line up with or without the button. */
+.setting-action {
+  width: 24px;
+  flex: none;
+  display: flex;
+  justify-content: center;
+}
+
+.setting-badge {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: var(--text-caption);
+  line-height: 16px;
+}
+
+.setting-badge.muted-badge {
+  background: transparent;
+  padding: 0;
+  color: var(--ink-muted);
+}
+
+.setting-link {
+  color: var(--accent);
+  font-size: var(--text-label);
+  text-decoration: underline;
+}
+
+.setting-summary {
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  white-space: nowrap;
+}
+
+.draft-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.draft-row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.draft-input {
+  width: 220px;
+  min-width: 0;
+  max-width: 100%;
+  height: 28px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-label);
+}
+
+/* Narrow window: the navigation becomes a scrollable strip at the top and each row stacks label and control. */
+@container settings (max-width: 640px) {
+  .settings-layout {
+    flex-direction: column;
+  }
+
+  .settings-nav {
+    width: auto;
+    flex-direction: row;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .settings-nav-item::before {
+    top: auto;
+    bottom: 0;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    height: 2px;
+    transform: scaleX(0);
+  }
+
+  .settings-nav-item.active::before {
+    transform: none;
+  }
+
+  .settings-content {
+    padding: var(--space-2) var(--space-4) var(--space-4);
+  }
+
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .setting-control {
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+
+  .draft-input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  .draft-input.numeric {
+    flex: none;
+    width: 88px;
+  }
+
+  .settings-scope {
+    flex-wrap: wrap;
+  }
+}
+
+.draft-input.numeric {
+  width: 88px;
+  text-align: right;
+}
+
+.draft-input.mono {
+  font-family: var(--font-mono);
+}
+
+.draft-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.draft-unit {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.setting-error {
+  color: var(--danger);
+  font-size: var(--text-caption);
+  line-height: 16px;
+}

@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    # `/` only covers .github/workflows; the composite actions live in their own folders.
+    directories: ['/', '/.github/actions/*']
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # typescript-eslint requires typescript <6.1 (the project's `typescript` is the TS 6 alias for lint/editor only) and
+    # the bundled tsserver follows the same TS 6.0. The typecheck TS 7 (`typescript7`) can update normally.
+    ignore:
+      - dependency-name: typescript
+        versions: ['>=6.1']
+      - dependency-name: tsserver-bundled
+        versions: ['>=6.1']
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]

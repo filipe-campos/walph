@@ -1,0 +1,441 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-000);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--ui-font-size);
+  /* Length (not unitless) so children inherit the same line height as before, scaled with the font. */
+  line-height: calc(var(--ui-font-size) * 20 / 13);
+  overflow: hidden;
+  user-select: none;
+  /* No `-webkit-font-smoothing: antialiased`: on macOS it turns off the system smoothing and thins the text (worse on
+     1x screens). VS Code also keeps the default smoothing. */
+}
+
+/* Theme selection: the system one (light blue on macOS) disappears under the light text of the dark theme. Translucent
+   so the text keeps its color; the editor and the terminal have their own (CodeMirror and xterm), and the Claude prompt
+   overrides it. */
+::selection {
+  background: var(--editor-selection);
+}
+
+body.resizing-x {
+  cursor: col-resize;
+}
+body.resizing-y {
+  cursor: row-resize;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+button:disabled,
+button[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg-100);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  outline: none;
+  user-select: text;
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ink-faint);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+}
+
+/* Keyboard focus: 2px solid `focus-ring`, on everything focusable. */
+button:focus-visible,
+[tabindex]:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+kbd {
+  font-family: var(--font-mono);
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+/* Screen readers only. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* ---------- Design system icons (components/common/Icon.tsx, FileIcon.tsx, Logo.tsx) ---------- */
+
+.wicon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* Stroke always in screen px (does not scale with the icon size): the drawings sit on the 16px grid, with straight
+   lines at half a pixel, so they stay crisp on 1x screens. */
+.wicon path,
+.ficon-crisp path {
+  vector-effect: non-scaling-stroke;
+}
+
+/* --grad-ai gradient of the AI icons. */
+.wicon-stop-1 {
+  stop-color: var(--accent-3);
+}
+.wicon-stop-2 {
+  stop-color: var(--accent);
+}
+.wicon-stop-3 {
+  stop-color: var(--accent-2);
+}
+
+.ficon {
+  flex: none;
+}
+
+/* Language badge: 13/16 square in the type color with the dark abbreviation (the size comes from the inline style). */
+.ficon-badge {
+  display: inline-grid;
+  place-items: center;
+}
+
+.ficon-badge::before {
+  content: attr(data-label);
+  width: 81.25%;
+  height: 81.25%;
+  display: grid;
+  place-items: center;
+  border-radius: 23%;
+  background: var(--ficon-color);
+  color: var(--ficon-cut);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.logo {
+  display: block;
+  flex: none;
+}
+.logo-front-1 {
+  stop-color: var(--accent-3);
+}
+.logo-front-2 {
+  stop-color: var(--accent);
+}
+.logo-back-1 {
+  stop-color: var(--accent);
+}
+.logo-back-2 {
+  stop-color: var(--accent-2);
+}
+.logo-word {
+  fill: var(--ink);
+}
+
+/* ---------- Claude Code status (StatusDot) ---------- */
+
+.status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--ink-faint);
+}
+
+.status-dot.running {
+  background: var(--accent);
+  animation: breathe var(--duration-pulse) var(--ease-breathe) infinite;
+}
+.status-dot.done {
+  background: var(--success);
+}
+.status-dot.attention {
+  background: var(--warning);
+  /* Waiting for you: pulses until answered (the single ping of ::after is not enough to draw attention). */
+  animation: attention-pulse var(--duration-pulse) var(--ease-out) infinite;
+}
+.status-dot.error {
+  background: var(--danger);
+}
+
+/* Single ping on entering done/attention/error (the animation starts when the class changes). */
+.status-dot.done::after,
+.status-dot.attention::after,
+.status-dot.error::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0;
+  animation: ping 900ms var(--ease-out) 1;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--accent-glow);
+    opacity: 0.75;
+  }
+}
+
+@keyframes attention-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--warning) 70%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--warning) 0%, transparent);
+  }
+}
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes workspace-tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes think-trace {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes think-sheen {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes neon-trace {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+@keyframes neon-glow {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+@keyframes underline-run {
+  from {
+    background-position:
+      -60% 0,
+      0 0;
+  }
+  to {
+    background-position:
+      160% 0,
+      0 0;
+  }
+}
+
+/* ---------- Light: neon border ----------
+   1px ring painted on the border-box under an opaque fill (`--neon-fill`). Static = highlight or AI result;
+   `.neon-live` = comet running along the border (AI working). At most three traces visible. */
+
+.neon,
+.neon-live {
+  --neon-fill: var(--bg-300);
+  border: 1px solid transparent !important;
+}
+
+.neon {
+  background:
+    var(--grad-surface) padding-box,
+    linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+    var(--grad-ring) border-box !important;
+}
+
+.neon-live {
+  position: relative;
+  background:
+    linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+    conic-gradient(from var(--neon-angle), var(--grad-trace-stops)) border-box !important;
+  animation: neon-trace var(--duration-trace) linear infinite;
+}
+
+/* The blurred glow around the border. It is static (the blur is rasterized once) and only the opacity pulses, on the
+   compositor: animating the angle of a conic-gradient with `filter: blur` repainted the whole layer every frame. */
+.neon-live::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--grad-ring);
+  filter: blur(7px);
+  opacity: 0.7;
+  will-change: opacity;
+  animation: neon-glow calc(var(--duration-trace) / 2) ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* Hidden workspace: no continuous animation spends frames (the view animates again when shown). */
+:root[data-view-inactive] *,
+:root[data-view-inactive] *::before,
+:root[data-view-inactive] *::after {
+  animation-play-state: paused !important;
+}

@@ -1,0 +1,570 @@
+/* ---------- Welcome (aurora background, staggered entrance) ---------- */
+
+.welcome {
+  container: welcome / inline-size;
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  background: var(--grad-aurora);
+  color: var(--ink);
+}
+
+.welcome-in {
+  animation: rise-in var(--duration-base) var(--ease-out) both;
+  animation-delay: calc(var(--step, 0) * var(--duration-stagger));
+}
+
+/* Slowly drifting aurora: the layer is a ::before bigger than the box, fixed behind the content (does not scroll), and
+   only the transform moves (compositor, no repaint). The .welcome scrolls on top, without a background. */
+.welcome-shell {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.welcome-shell::before {
+  content: '';
+  position: absolute;
+  inset: -15%;
+  background: var(--grad-aurora);
+  will-change: transform;
+  animation: welcome-aurora 48s var(--ease-breathe) infinite alternate;
+  pointer-events: none;
+}
+
+.welcome-shell > .welcome {
+  position: relative;
+  z-index: 1;
+  background: none;
+}
+
+@keyframes welcome-aurora {
+  from {
+    transform: translate3d(-3%, -2%, 0);
+  }
+  to {
+    transform: translate3d(3%, 4%, 0);
+  }
+}
+
+@keyframes welcome-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+}
+
+/* Soft glow behind the logo (the logo itself never animates). */
+.welcome-logo {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+}
+
+.welcome-logo::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--accent-glow), transparent);
+  animation: welcome-glow calc(var(--duration-pulse) * 2) var(--ease-breathe) infinite;
+  pointer-events: none;
+}
+
+.welcome-brand,
+.welcome-highlights {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* Feature cards: 4 in a row, 2x2 and 1 column depending on the width of the start screen. */
+.recent-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@container welcome (max-width: 720px) {
+  .recent-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container welcome (max-width: 420px) {
+  .recent-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.recent-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--grad-surface), var(--bg-200);
+  color: var(--ink);
+  text-align: left;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+/* Gradient ring (the same as .neon) that lights up on hover/focus, without touching the layout. */
+.recent-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--grad-ring);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+/* Sheen that crosses the card once on hover/focus. */
+.recent-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    color-mix(in srgb, var(--ink) 9%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.recent-card:hover,
+.recent-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-pop);
+}
+
+/* The gradient ring belongs to keyboard focus; hover only lifts the card. */
+.recent-card:focus-visible::before {
+  opacity: 1;
+}
+
+.recent-card:hover::after,
+.recent-card:focus-visible::after {
+  transform: translateX(120%);
+  transition: transform var(--duration-sheen) var(--ease-out);
+}
+
+.recent-card:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.recent-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+}
+
+.recent-card-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--ui-font-size);
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.recent-card-branch {
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-shell::before,
+  .welcome-logo::before {
+    animation: none;
+    will-change: auto;
+  }
+
+  .recent-card,
+  .recent-card:hover,
+  .recent-card:focus-visible {
+    transform: none;
+  }
+
+  .recent-card::after {
+    display: none;
+  }
+}
+
+.welcome-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: var(--space-8);
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 72px var(--space-8) var(--space-8);
+}
+
+@container welcome (max-width: 720px) {
+  .welcome-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 48px;
+  }
+}
+
+.welcome-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.welcome-tag {
+  margin: var(--space-3) 0 0;
+  color: var(--ink-muted);
+  font-size: var(--text-title);
+  line-height: 22px;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 calc(-1 * var(--space-2));
+}
+
+.welcome-action {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 34px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  text-align: left;
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+.welcome-action .wicon {
+  color: var(--accent);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.welcome-action:hover {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.welcome-action:hover .wicon {
+  transform: translateX(2px);
+}
+
+.welcome-action-label {
+  flex: 1;
+}
+
+.welcome-action-kbd {
+  font-size: var(--text-label);
+  color: var(--ink-faint);
+}
+
+.welcome-caption {
+  margin: 0 0 var(--space-2);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.welcome-recent {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-list {
+  list-style: none;
+  margin: 0 calc(-1 * var(--space-2));
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-instant) var(--ease-standard);
+}
+
+.recent-item:hover,
+.recent-item:focus-within {
+  background: var(--bg-300);
+}
+
+.recent-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 6px var(--space-2);
+  text-align: left;
+}
+
+.recent-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-name {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.recent-dir {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: 16px;
+  color: var(--ink-faint);
+}
+
+.recent-remove {
+  flex-shrink: 0;
+  margin-right: var(--space-1);
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.recent-remove .wicon {
+  width: 12px;
+  height: 12px;
+}
+
+.recent-item:hover .recent-remove,
+.recent-item:focus-within .recent-remove {
+  opacity: 1;
+}
+
+.recent-empty {
+  margin: 0;
+  color: var(--ink-muted);
+}
+
+/* Multiple selection: the selected row gets a background, a left bar and the checked checkbox (never color alone). */
+.recent-item.selected {
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.recent-check {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin: 0 0 0 var(--space-2);
+  accent-color: var(--accent);
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.recent-item:hover .recent-check,
+.recent-item:focus-within .recent-check,
+.recent-list:has(.recent-item.selected) .recent-check {
+  opacity: 1;
+}
+
+.recent-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.recent-branch {
+  min-width: 0;
+  max-width: 45%;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 16px;
+  color: var(--ink-muted);
+}
+
+.recent-branch .wicon {
+  width: 11px;
+  height: 11px;
+  flex: none;
+}
+
+.recent-age {
+  flex-shrink: 0;
+  font-size: var(--text-caption);
+  line-height: 16px;
+  color: var(--ink-faint);
+}
+
+.recent-live {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.recent-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.recent-clear {
+  height: 28px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  font-weight: 500;
+}
+
+.recent-clear:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.recent-hint {
+  margin: 0 0 var(--space-2);
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+  line-height: 14px;
+}
+
+/* The row button focus followed an inner rectangle: the ring follows the radius of the whole row. */
+.recent-open:focus-visible {
+  outline: none;
+}
+
+.recent-item:has(.recent-open:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+/* "Start with Claude": AI, so it carries the light ring (.neon); focus lights the focus ring. */
+.welcome-claude-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome-claude {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+}
+
+.welcome-claude:focus-within {
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.welcome-claude-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  max-height: 160px;
+  padding: 4px 0;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  line-height: 20px;
+}
+
+.welcome-claude-input::placeholder {
+  color: var(--ink-faint);
+}
+
+.welcome-claude-target {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+  line-height: 16px;
+}
+
+/* With a folder and no tab: logo and the main shortcuts, centered. */
+.welcome-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.welcome-compact .welcome-brand {
+  opacity: 0.9;
+}
+
+.shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 260px;
+  margin: 0;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.shortcuts dt {
+  color: var(--ink-muted);
+}
+
+.shortcuts dd {
+  margin: 0;
+}
+
+.shortcuts kbd {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-300);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}

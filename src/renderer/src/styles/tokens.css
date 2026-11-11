@@ -1,0 +1,97 @@
+/* Animated angle of the neon line: it only rotates if the conic-gradient is declared on the animated element itself. */
+@property --neon-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  /* Dark default for the first paint; the active theme (themes/*.ts) overrides these values at runtime. */
+  --bg-000: #0a090f;
+  --bg-100: #100e17;
+  --bg-200: #15131e;
+  --bg-300: #1c1928;
+  --bg-400: #252134;
+  --line: #2b2739;
+  --line-strong: #6b6389;
+  --ink: #eeebf7;
+  --ink-muted: #a49fbb;
+  --ink-faint: #8a84a3;
+  --accent: #4da6ff;
+  --accent-strong: #80c0ff;
+  --accent-soft: #102640;
+  --accent-glow: rgba(77, 166, 255, 0.35);
+  --accent-2: #7b7cff;
+  --accent-3: #4fd1ff;
+  --on-accent: #0a090f;
+  --focus-ring: #4da6ff;
+  --success: #3ddcc4;
+  --success-soft: #0f2b2a;
+  --warning: #f5c451;
+  --warning-soft: #2e2512;
+  --danger: #ff7b5c;
+  --danger-soft: #33160f;
+  --scrim: rgba(5, 4, 9, 0.55);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-glow: 0 0 0 1px rgba(77, 166, 255, 0.45), 0 0 18px rgba(77, 166, 255, 0.28);
+  --shadow-neon: 0 10px 36px -12px rgba(77, 166, 255, 0.55);
+
+  /* Typography (not themed): Geist in the interface, JetBrains Mono in the code, bundled in main.tsx. */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* Base UI size (`workbench.fontSize`, applied in appearance.ts): the other sizes are fractions of it. */
+  --ui-font-size: 13px;
+  --text-micro: calc(var(--ui-font-size) * 10 / 13);
+  --text-caption: calc(var(--ui-font-size) * 11 / 13);
+  --text-label: calc(var(--ui-font-size) * 12 / 13);
+  --text-body: var(--ui-font-size);
+  --text-title: calc(var(--ui-font-size) * 15 / 13);
+
+  /* 4px grid and radii. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+
+  /* Motion: transitions up to 320ms; pulse, sheen and trace belong to the AI and the primary action. */
+  --duration-instant: 80ms;
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+  --duration-stagger: 40ms;
+  --duration-pulse: 1800ms;
+  --duration-sheen: 700ms;
+  --duration-trace: 4200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-breathe: cubic-bezier(0.45, 0, 0.55, 1);
+
+  /* Light recipes, built from the color tokens (change the accent and everything follows). */
+  --grad-brand: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  --grad-ai: linear-gradient(120deg, var(--accent-3) 0%, var(--accent) 48%, var(--accent-2) 100%);
+  --grad-surface: linear-gradient(180deg, color-mix(in srgb, var(--ink) 4%, transparent) 0%, transparent 42%);
+  --grad-ring: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 75%, transparent) 0%,
+    var(--line) 38%,
+    var(--line) 62%,
+    color-mix(in srgb, var(--accent-3) 55%, transparent) 100%
+  );
+  --grad-aurora:
+    radial-gradient(55% 60% at 12% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 70%),
+    radial-gradient(45% 45% at 95% 8%, color-mix(in srgb, var(--accent-3) 11%, transparent), transparent 70%),
+    radial-gradient(50% 45% at 60% 105%, color-mix(in srgb, var(--accent-2) 13%, transparent), transparent 70%);
+  /* Only the comet stops: the conic-gradient (with the angle) is built on the animated element. */
+  --grad-trace-stops:
+    var(--line) 0deg, var(--line) 190deg, color-mix(in srgb, var(--accent-2) 70%, var(--line)) 250deg,
+    var(--accent) 305deg, var(--accent-3) 352deg, var(--line) 360deg;
+
+  color-scheme: dark;
+}

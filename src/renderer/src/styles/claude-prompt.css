@@ -1,0 +1,812 @@
+/* Prompt box: line-strong border; while Claude works, the neon line runs along the border. */
+.claude-prompt {
+  --neon-fill: var(--bg-100);
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 var(--space-3) var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-100);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+
+/* Focus on the field without the accent ring (design system): the border only lightens to ink-faint, the caret already
+   marks where you are. Running (neon) or dragging, that state's border wins. */
+.claude-prompt:focus-within:not(.neon-live, .dragging) {
+  border-color: var(--ink-faint);
+}
+
+.claude-input-wrap {
+  position: relative;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.claude-input-body {
+  position: relative;
+}
+
+/* The visible text is the layer's (`.claude-input-mirror`, with the highlights), which sets the height; the textarea
+   covers it and draws only the caret and the selection. `.claude-input-wrap` is what scrolls (the textarea never
+   scrolls), so layer and caret move together on the compositor, without syncing through JS. Both must wrap lines the
+   same way: same font, padding and wrapping rule. */
+.claude-input {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow: hidden;
+}
+
+/* The visible text is the mirror behind the textarea: the selection must be translucent, otherwise it covers it. */
+.claude-input::selection {
+  color: transparent;
+  background: var(--editor-selection);
+}
+
+.claude-input-mirror {
+  min-height: 22px;
+  pointer-events: none;
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.claude-input:focus {
+  border: 0;
+}
+
+.claude-prompt-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  /* Subtle divider between the field and the actions bar. */
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+}
+
+.claude-prompt-spacer {
+  flex: 1;
+}
+
+/* Field toolbar: 28px buttons (design system `.wp-cl-tbtn`), 16px icons. */
+.claude-prompt-actions .icon-button {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+}
+
+.claude-prompt-actions .icon-button .wicon {
+  width: 16px;
+  height: 16px;
+}
+
+.claude-prompt-actions .toggle {
+  width: auto;
+  max-width: 120px;
+  height: 26px;
+  padding: 0 6px;
+  gap: 4px;
+  font-size: var(--text-label);
+}
+
+.claude-context-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Send: --grad-brand circle; Stop: neutral circle. */
+.claude-send {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--grad-brand);
+  color: var(--on-accent);
+  transition:
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-instant) var(--ease-standard),
+    opacity var(--duration-fast) var(--ease-standard);
+}
+
+.claude-send .wicon {
+  width: 14px;
+  height: 14px;
+}
+
+.claude-send:hover:not(:disabled) {
+  box-shadow: var(--shadow-glow);
+}
+
+.claude-send:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.claude-send:disabled {
+  opacity: 0.35;
+}
+
+.claude-send:focus-visible {
+  outline-offset: 2px;
+}
+
+/* Stop (send turns into "Stop" while running and the field is empty): square in a neutral circle. */
+.claude-send.stop {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-send.stop:hover {
+  background: var(--line-strong);
+  box-shadow: none;
+}
+
+.claude-send.stop .wicon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Stop next to Queue (there is text in the field): same circle, just a bit smaller. */
+.claude-send.stop.compact {
+  width: 22px;
+  height: 22px;
+}
+
+.claude-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.claude-image {
+  position: relative;
+}
+
+.claude-image img {
+  height: 48px;
+  max-width: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.claude-image .icon-button {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 18px;
+  height: 18px;
+  background: var(--bg-300);
+}
+
+/* Box menus (@ files, / commands): open upwards, at the field width. */
+.claude-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  margin: 0 0 6px;
+  padding: var(--space-1);
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop);
+  z-index: 20;
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+/* Menus with a scrollable list and a fixed footer (the hint does not scroll along). */
+.claude-menu-popup {
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+}
+
+.claude-menu-scroll {
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.claude-menu-popup > .claude-menu-empty {
+  border-top: 1px solid var(--line);
+}
+
+.claude-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.claude-menu-item.selected,
+.claude-menu-item:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-menu-name {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  color: var(--ink);
+}
+
+.claude-menu-dim {
+  min-width: 0;
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+}
+
+/* Box chips (mode, model): 26px pill in bg-300 with a line ring and ink text; the popup opens upwards at the field
+   width and the arrow rotates while open. */
+.claude-chip-wrap {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.claude-chip-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 180px;
+  height: 26px;
+  padding: 0 6px 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--bg-300);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.claude-chip-button:hover {
+  background: var(--bg-400);
+}
+
+.claude-chip-button.open {
+  background: var(--bg-300);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.claude-chip-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.claude-chip-button .wicon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.claude-chip-button > .wicon:first-child {
+  color: var(--ink-muted);
+}
+
+.claude-chip-button .claude-chip-chev {
+  width: 12px;
+  height: 12px;
+  color: var(--ink-faint);
+  transform: rotate(90deg);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.claude-chip-button.open .claude-chip-chev {
+  transform: rotate(-90deg);
+}
+
+.claude-chip-button.danger,
+.claude-chip-button.danger:hover {
+  background: var(--danger-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 45%, transparent);
+  color: var(--danger);
+}
+
+.claude-chip-button.danger > .wicon:first-child,
+.claude-chip-button.danger .claude-chip-chev {
+  color: inherit;
+}
+
+.claude-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.claude-effort-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+/* Effort level: five increasing bars; the `on` ones up to the level in accent, the rest dimmed. */
+.claude-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 12px;
+  flex: none;
+}
+
+.claude-bars i {
+  display: block;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+
+.claude-bars i:nth-child(1) {
+  height: 4px;
+}
+
+.claude-bars i:nth-child(2) {
+  height: 6px;
+}
+
+.claude-bars i:nth-child(3) {
+  height: 8px;
+}
+
+.claude-bars i:nth-child(4) {
+  height: 10px;
+}
+
+.claude-bars i:nth-child(5) {
+  height: 12px;
+}
+
+.claude-bars i.on {
+  background: var(--accent);
+}
+
+/* Narrow panel: the mode chip shows only the icon. */
+@container wp-cl (max-width: 340px) {
+  .claude-chip-label {
+    display: none;
+  }
+}
+
+.claude-chip-menu {
+  max-height: 360px;
+}
+
+/* Model menu: search and effort fixed; only the model list scrolls. */
+.claude-model-menu {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.claude-model-search {
+  flex-shrink: 0;
+  height: 26px;
+  margin-bottom: var(--space-1);
+  padding: 0 var(--space-2);
+  font: inherit;
+}
+
+.claude-model-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.claude-model-menu .claude-effort {
+  flex-shrink: 0;
+}
+
+.claude-option {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: 6px var(--space-2);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  text-align: left;
+}
+
+.claude-option:hover,
+.claude-option:focus-visible {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+/* ink-faint is not allowed on bg-400. */
+.claude-option:hover .claude-option-desc,
+.claude-option:focus-visible .claude-option-desc {
+  color: var(--ink-muted);
+}
+
+.claude-option[aria-checked='true'] {
+  color: var(--ink);
+}
+
+.claude-option.danger {
+  color: var(--danger);
+}
+
+.claude-option.danger:hover,
+.claude-option.danger:focus-visible {
+  background: var(--danger-soft);
+}
+
+.claude-option > .wicon {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* Tone of each execution mode (design system `wp-tone-*`): only the icon changes color; Auto is already the gradient
+   bolt. */
+.claude-option.tone-edit > .wicon,
+.claude-chip-button.tone-edit > .wicon:first-child {
+  color: var(--accent);
+}
+
+.claude-option.tone-plan > .wicon,
+.claude-chip-button.tone-plan > .wicon:first-child {
+  color: var(--accent-3);
+}
+
+.claude-option.tone-danger > .wicon {
+  color: var(--danger);
+}
+
+/* Bypass without the setting: visible but inert, with the explanation of how to enable it. */
+.claude-option:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.claude-option:disabled:hover {
+  background: transparent;
+}
+
+.claude-option-desc code {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+}
+
+.claude-menu-head {
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  font: 500 11px/14px var(--font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.claude-option > .codicon-check {
+  flex: none;
+  margin-left: auto;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.claude-option-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.claude-option-title {
+  font-size: var(--text-label);
+}
+
+.claude-option-desc {
+  font-size: var(--text-caption);
+  color: var(--ink-faint);
+  white-space: normal;
+}
+
+/* Effort slider: mono segments; the active one gets accent-soft (and aria-checked, never color alone). */
+.claude-effort {
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  border-top: 1px solid var(--line);
+}
+
+.claude-effort-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+}
+
+.claude-effort-track {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-md);
+  background: var(--bg-100);
+}
+
+.claude-effort-level {
+  flex: 1;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.claude-effort-level:hover:not(:disabled),
+.claude-effort-level:focus-visible {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-effort-level[aria-checked='true'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.claude-effort-level:disabled {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  cursor: default;
+}
+
+.claude-effort-note {
+  margin: 4px 0 0;
+  font-size: var(--text-caption);
+  color: var(--ink-faint);
+}
+
+/* Plan mode notice: icon + text, not color alone. */
+.claude-mode-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-caption);
+  line-height: 14px;
+  color: var(--ink-muted);
+}
+
+.claude-mode-note .wicon {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--accent-3);
+}
+
+/* Dragging files onto the field. */
+.claude-prompt.dragging {
+  border-style: dashed;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.claude-attachment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 24px;
+  padding: 0 4px 0 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-300);
+  font-size: var(--text-label);
+}
+
+.claude-attachment-name {
+  min-width: 0;
+  max-width: 160px;
+}
+
+.claude-attachment-size {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink-faint);
+}
+
+.claude-attachment .icon-button {
+  position: static;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+}
+
+/* `/` menu: groups with a header, name in mono, expected argument and description (plain text). */
+.claude-menu-group {
+  padding: 6px var(--space-2) 2px;
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.claude-menu-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.claude-menu-hint {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink-muted);
+}
+
+.claude-menu-empty {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+}
+
+.claude-menu-empty code {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+/* Favorite star: filled (accent) when the session is a favorite. */
+.claude-star[aria-pressed='true'] {
+  color: var(--accent);
+}
+
+.claude-star[aria-pressed='true'] .wicon {
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+  animation: claude-fav-pop var(--duration-base) var(--ease-out);
+}
+
+.claude-star[aria-pressed='true'] .wicon path {
+  fill: currentColor;
+  fill-opacity: 1;
+}
+
+@keyframes claude-fav-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Dropdown menu (⋯): elevated bg-300, 28px items, shortcut in mono on the right, `danger` in --danger. */
+.dropdown {
+  position: relative;
+  display: inline-flex;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 232px;
+  padding: var(--space-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop);
+  animation: rise-in var(--duration-fast) var(--ease-out) both;
+}
+
+.dropdown-item {
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: var(--text-label);
+  text-align: left;
+}
+
+.dropdown-item:hover:not(:disabled),
+.dropdown-item:focus-visible {
+  background: var(--bg-400);
+}
+
+.dropdown-item:disabled {
+  color: var(--ink-faint);
+  cursor: default;
+}
+
+.dropdown-item.danger {
+  color: var(--danger);
+}
+
+.dropdown-item.danger:hover:not(:disabled),
+.dropdown-item.danger:focus-visible {
+  background: var(--danger-soft);
+}
+
+.dropdown-label {
+  flex: 1;
+}
+
+.dropdown-hint {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink-muted);
+}
+
+.dropdown-separator {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--line);
+}
+
+.claude-image-open {
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  cursor: zoom-in;
+}
+
+.modal.command-args-modal {
+  width: min(520px, 100%);
+}
+
+/* The editor shrinks with the window height and scrolls inside; the modal body does not scroll. */
+.command-args-modal .modal-body {
+  overflow: hidden;
+  padding: var(--space-3) var(--space-4);
+}
+
+.command-args-hint {
+  flex: none;
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-label);
+  overflow-wrap: anywhere;
+}
+
+.command-args-editor {
+  flex: 0 1 auto;
+  min-height: 72px;
+  max-height: 280px;
+}
+
+.command-args-modal .modal-footer {
+  flex-wrap: wrap;
+}
