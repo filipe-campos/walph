@@ -1,0 +1,120 @@
+<!-- @dsCard group="Telas" page height=640 width=1280 subtitle="Full window: Claude Code finishes in 'billing-api' while you are in 'walph-web'" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Walph: window</title>
+<style>
+  html, body, #root { height: 100%; }
+  body { margin: 0; background: var(--bg-000); overflow: hidden; }
+  .win { display: grid; grid-template-rows: 52px 1fr 24px; height: 100%; }
+  .main { display: grid; grid-template-columns: 284px 1fr 360px; min-height: 0; }
+  .center { display: grid; grid-template-rows: auto 1fr 200px; min-width: 0; min-height: 0; }
+  .ln { display: flex; } .ln span { white-space: pre; } .ln b { width: 48px; padding-right: 16px; text-align: right; color: var(--ink-faint); font-weight: 400; flex: none; }
+  .toasts { position: absolute; right: 384px; bottom: 48px; display: flex; flex-direction: column; gap: 8px; }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var W = window.Walph, h = React.createElement;
+  var K = function (t) { return ['keyword', t]; }, F = function (t) { return ['function', t]; }, T = function (t) { return ['type', t]; }, S = function (t) { return ['string', t]; }, C = function (t) { return ['comment', t]; }, O = function (t) { return ['operator', t]; }, P = function (t) { return ['property', t]; };
+  var code = [
+    [K('import'), ' ', O('{'), ' ', T('Workspace'), ' ', O('}'), ' ', K('from'), ' ', S("'@walph/core'")],
+    [''],
+    [C('// todos os workspaces numa janela só')],
+    [K('export'), ' ', K('async'), ' ', K('function'), ' ', F('openAll'), O('('), 'paths', O(':'), ' ', T('string'), O('[])'), ' ', O('{')],
+    ['  ', K('return'), ' ', T('Promise'), O('.'), F('all'), O('('), 'paths', O('.'), F('map'), O('('), T('Workspace'), O('.'), F('open'), O('))')],
+    [O('}')]
+  ];
+  var md = [[['keyword', '# '], ['tag', 'Walph']], [''], ['Todos os workspaces numa janela só, com o Claude Code avisando quando termina.']];
+  var COMMANDS = [{ name: 'review', description: 'Revisa o diff atual contra o guia de estilo', scope: 'project' }, { name: 'test-e2e', description: 'Roda e corrige os testes E2E', argumentHint: '<fluxo>', scope: 'project' }, { name: 'standup', description: 'Resume o que mudou desde ontem', scope: 'user' }];
+  var seed = function () { return [
+    { id: 'web', name: 'walph-web', branch: 'main', status: 'idle' },
+    { id: 'api', name: 'billing-api', branch: 'feat/invoices', status: 'running' },
+    { id: 'mob', name: 'mobile-app', branch: 'fix/login', status: 'attention', unread: 1 },
+    { id: 'pay', name: 'checkout', branch: 'feat/pix-qr', status: 'running', unread: 1 },
+    { id: 'infra', name: 'infra', branch: 'chore/oci', status: 'idle' }
+  ]; };
+  function App() {
+    var s = React.useState(seed()), ws = s[0], setWs = s[1];
+    var a = React.useState('web'), active = a[0], setActive = a[1];
+    var t = React.useState([]), toasts = t[0], setToasts = t[1];
+    var tab = React.useState('workspaces.ts'), et = tab[0], setEt = tab[1];
+    var sv = React.useState('explorer'), view = sv[0], setView = sv[1];
+    var sp = React.useState(false), split = sp[0], setSplit = sp[1];
+    var fv = React.useState([{ name: 'review', icon: 'check' }, { name: 'test-e2e', icon: 'flask' }]), favs = fv[0], setFavs = fv[1];
+    var pv = React.useState(false), prev = pv[0], setPrev = pv[1];
+    var sm = React.useState(false), settings = sm[0], setSettings = sm[1];
+    var sn = React.useState('claude'), snav = sn[0], setSnav = sn[1];
+    var ss = React.useState({ notify: true, toast: true, restore: true }), sst = ss[0], setSst = ss[1];
+    React.useEffect(function () {
+      var timers = [];
+      function cycle() {
+        timers.push(setTimeout(function () {
+          setWs(function (l) { return l.map(function (w) { return w.id === 'api' ? Object.assign({}, w, { status: 'done', unread: 1 }) : w; }); });
+          setToasts([{ id: Date.now() }]);
+        }, 2500));
+        timers.push(setTimeout(function () { setWs(seed()); setActive('web'); setToasts([]); cycle(); }, 11000));
+      }
+      cycle();
+      return function () { timers.forEach(clearTimeout); };
+    }, []);
+    var select = function (id) {
+      setActive(id);
+      setWs(function (l) { return l.map(function (w) { return w.id === id ? Object.assign({}, w, { unread: 0, status: w.status === 'done' ? 'idle' : w.status }) : w; }); });
+    };
+    var cur = ws.filter(function (w) { return w.id === active; })[0] || ws[0];
+    return h('div', { className: 'win' },
+      h(W.WorkspaceBar, { workspaces: ws, activeId: active, onSelect: select, onClose: function () {}, onAdd: function () {} }),
+      h('div', { className: 'main', style: view === 'containers' ? { gridTemplateColumns: 'auto 1fr' } : null },
+        h(W.Sidebar, { activeView: view, onSelectView: setView, onSettings: function () { setSettings(true); },
+          views: [{ id: 'explorer', icon: 'files', label: 'Explorador', shortcut: '⇧⌘E' }, { id: 'search', icon: 'search', label: 'Pesquisar', shortcut: '⇧⌘F' }, { id: 'git', icon: 'branch', label: 'Controle de código', shortcut: '⌃⇧G', badge: 2 }, { id: 'containers', icon: 'box', label: 'Containers', shortcut: '⇧⌘D', takeover: true }],
+          title: view === 'explorer' ? 'Explorador · ' + cur.name : undefined,
+          actions: view === 'explorer' ? [h('button', { key: 'n', className: 'wp-x', 'aria-label': 'Novo arquivo', title: 'Novo arquivo' }, h(W.Icons.plus))] : null },
+          view !== 'explorer' ? h('div', { style: { padding: '8px 12px', color: 'var(--ink-faint)', fontSize: 12 } }, view === 'search' ? 'Digite para pesquisar em ' + cur.name : '2 alterações em ' + cur.branch) : h('div', { role: 'tree' },
+          h(W.TreeItem, { label: '.claude', kind: 'folder' }), h(W.TreeItem, { label: '.github', kind: 'folder' }),
+          h(W.TreeItem, { label: 'src', kind: 'folder', open: true }),
+          h(W.TreeItem, { label: 'components', kind: 'folder', depth: 1 }), h(W.TreeItem, { label: 'services', kind: 'folder', depth: 1 }),
+          h(W.TreeItem, { label: 'workspaces.ts', depth: 1, git: 'M', selected: et === 'workspaces.ts', onClick: function () { setEt('workspaces.ts'); } }),
+          h(W.TreeItem, { label: 'notifications.ts', depth: 1, git: 'A', selected: et === 'notifications.ts', onClick: function () { setEt('notifications.ts'); } }),
+          h(W.TreeItem, { label: 'theme.ts', depth: 1 }),
+          h(W.TreeItem, { label: 'README.md', selected: et === 'README.md', onClick: function () { setEt('README.md'); } }),
+          h(W.TreeItem, { label: 'test', kind: 'folder' }), h(W.TreeItem, { label: 'docker', kind: 'folder' }),
+          h(W.TreeItem, { label: '.env' }), h(W.TreeItem, { label: 'docker-compose.yml' }), h(W.TreeItem, { label: 'CLAUDE.md' }),
+          h(W.TreeItem, { label: 'package.json' }), h(W.TreeItem, { label: 'tsconfig.json' }))),
+        view === 'containers' ? h(W.ContainersView, { context: 'desktop-linux', version: '27.3', memUsed: '0,9 GB', memTotal: '7,7 GB', memPct: 12, onAction: function () {}, onGroupAction: function () {}, onComposeUp: function () {}, onRefresh: function () {}, onAskClaude: function () {},
+          projects: [{ id: 'p', name: cur.name, path: '~/code/' + cur.name + '/docker-compose.yml', containers: [
+            { id: 'aa11bb22cc33dd', name: cur.name, image: cur.name + ':dev', status: 'running', uptime: 'Up 1 h', cpu: 8.2, cpuHistory: [6, 7, 9, 8, 10, 7, 8, 9, 8, 8], mem: '240 MB', memPct: 30, ports: [{ host: 3000, container: 3000, web: true }] },
+            { id: 'dd44ee55ff6600', name: cur.name + '-db', image: 'postgres:16-alpine', status: 'running', uptime: 'Up 1 h (healthy)', cpu: 2.1, cpuHistory: [2, 2, 3, 2, 2, 3, 2, 2, 2, 2], mem: '96 MB', memPct: 12, ports: [{ host: 5432, container: 5432 }] }] }] }) : null,
+        view === 'containers' ? null : h('div', { className: 'center' },
+          h(W.EditorTabs, { tabs: [{ id: 'workspaces.ts', name: 'workspaces.ts', dirty: true }, { id: 'notifications.ts', name: 'notifications.ts' }, { id: 'README.md', name: 'README.md' }],
+            activeId: et, onSelect: setEt, onClose: function () {}, onSplit: function () { setSplit(!split); }, split: split, onPreview: function () { setPrev(!prev); }, previewOpen: prev }),
+          h('div', { style: { display: 'grid', gridTemplateColumns: (split || (prev && et === 'README.md')) ? '1fr 1fr' : '1fr', minHeight: 0, background: 'var(--bg-100)' } },
+            et === 'README.md' ? h(W.Code, { lines: md, activeLine: 1 }) : h(W.Code, { lines: code, activeLine: 5, changes: { 3: 'added', 4: 'modified', 5: 'added' } }),
+            prev && et === 'README.md' ? h('div', { style: { borderLeft: '1px solid var(--line)', padding: '12px 20px', color: 'var(--ink)', fontSize: 13, lineHeight: '20px', overflow: 'auto' } },
+              h('h2', { style: { margin: '0 0 8px', font: '600 18px/24px var(--font-sans)' } }, 'Walph'), h('p', { style: { margin: 0, color: 'var(--ink-muted)' } }, 'Todos os workspaces numa janela só, com o Claude Code avisando quando termina.')) :
+            split ? h('div', { style: { borderLeft: '1px solid var(--line)', minWidth: 0 } }, h(W.Code, { lines: code, activeLine: 4 })) : null),
+          h(W.Terminal, { activeId: 'zsh', onAdd: function () {}, onSelect: function () {}, cwd: '~/code/' + cur.name, branch: cur.branch, tabs: [{ id: 'zsh', name: 'zsh' }, { id: 'cc', name: 'claude', kind: 'claude', status: cur.status }],
+            lines: [{ kind: 'input', text: 'npm run dev' }, { kind: 'muted', text: '  VITE v5.4.8  ready in 412 ms' }, { kind: 'success', text: '  ➜  Local: http://localhost:5173/' }] })),
+        view === 'containers' ? null : h(W.ClaudePanel, { workspace: cur.name, commands: COMMANDS, favoriteCommands: favs, onFavoriteCommandsChange: setFavs, onRunCommand: function () {}, status: cur.id === 'api' ? cur.status : 'idle',
+          sessions: cur.id === 'api' ? [{ id: 'pix', title: 'Pix no checkout', status: cur.status === 'running' ? 'running' : 'done' }, { id: 'docs', title: 'Atualizar README', status: 'idle' }] : [{ id: 'main', title: 'Sessão 1', status: 'idle' }],
+          activeSessionId: cur.id === 'api' ? 'pix' : 'main', onSelectSession: function () {}, onNewSession: function () {}, onCloseSession: function () {},
+          messages: cur.id === 'api' ? [{ role: 'user', text: 'Adicione Pix no checkout' }, { role: 'tool', name: 'Write', target: 'src/pix.adapter.ts', state: cur.status === 'running' ? 'running' : 'done', add: 84, del: 0 }] :
+            [{ role: 'assistant', text: 'Pronto para ajudar em ' + cur.name + '. O Claude em billing-api avisa aqui quando terminar.' }],
+          summary: cur.id === 'api' && cur.status !== 'running' ? { title: 'Pronto — 3 arquivos, testes passando', files: [{ path: 'src/pix.adapter.ts', add: 84, del: 0 }, { path: 'src/invoice.service.ts', add: 21, del: 6 }], onReview: function () {} } : null })),
+      h(W.StatusBar, { path: '~/code/' + cur.name, onPath: function () {}, branch: cur.branch, ahead: cur.id === 'api' ? 3 : 0, behind: cur.id === 'mob' ? 2 : 0, onSync: function () {}, onBranch: function () {},
+        lastCommit: { author: cur.id === 'api' ? 'Claude Code' : 'Filipe Lima', time: cur.id === 'api' ? 'há 4 min' : 'ontem', message: cur.id === 'api' ? 'feat: adapter de Pix' : 'chore: atualiza dependências', hash: '9c41e0b' }, onCommit: function () {},
+        line: et === 'README.md' ? 1 : 5, column: et === 'README.md' ? 8 : 41, encoding: 'UTF-8', eol: 'LF', language: et === 'README.md' ? 'Markdown' : 'TypeScript', onGoToLine: function () {}, onEncoding: function () {}, onEol: function () {}, onLanguage: function () {} }),
+      h('div', { className: 'toasts' }, toasts.map(function (x) {
+        return h(W.Toast, { key: x.id, tone: 'done', title: 'Claude Code terminou', workspace: 'billing-api', branch: 'feat/invoices', workspacePath: '~/code/billing-api', description: '3 arquivos alterados · testes passando', actionLabel: 'Abrir workspace', secondaryLabel: 'Depois', duration: 7000,
+          onAction: function () { select('api'); }, onDismiss: function () { setToasts([]); } });
+      })),
+      settings ? h(W.Modal, { icon: 'gear', title: 'Configurações', description: 'Aplica a todos os workspaces', nav: [{ id: 'geral', label: 'Geral', icon: 'gear' }, { id: 'claude', label: 'Claude Code', icon: 'agent' }, { id: 'workspaces', label: 'Workspaces', icon: 'layers' }],
+        activeNav: snav, onNav: setSnav, footer: 'Salvo automaticamente', primaryLabel: 'Concluir', onClose: function () { setSettings(false); } },
+        h('div', { className: 'wp-setting-group' }, 'Notificações'),
+        h(W.SettingRow, { label: 'Avisar quando o Claude terminar', description: 'Contador na aba do workspace e toast.' }, h(W.Switch, { checked: sst.notify, onChange: function (v) { setSst(Object.assign({}, sst, { notify: v })); } })),
+        h(W.SettingRow, { label: 'Toast no workspace ativo' }, h(W.Switch, { checked: sst.toast, onChange: function (v) { setSst(Object.assign({}, sst, { toast: v })); } })),
+        h(W.SettingRow, { label: 'Restaurar workspaces ao abrir' }, h(W.Switch, { checked: sst.restore, onChange: function (v) { setSst(Object.assign({}, sst, { restore: v })); } }))) : null);
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
+</body>
+</html>

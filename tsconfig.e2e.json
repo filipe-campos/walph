@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "paths": { "@shared/*": ["./src/shared/*"] }
+  },
+  // DOM only here: the tests' `evaluate` calls run in the renderer; without the DOM types they are `error` for lint.
+  "include": ["e2e/**/*", "playwright.config.ts", "src/shared/**/*"],
+  "exclude": ["src/shared/**/*.test.ts"]
+}

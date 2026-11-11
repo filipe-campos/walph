@@ -1,0 +1,108 @@
+/* ---------- Reduced motion: durations at 0, pulse becomes a static halo, trace stops at --grad-ai ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+
+  .toast-time {
+    display: none;
+  }
+
+  .toast-progress.indeterminate > span {
+    width: 100%;
+    animation: none;
+    opacity: 0.45;
+  }
+
+  .status-dot.done::after,
+  .status-dot.attention::after,
+  .status-dot.error::after {
+    display: none;
+  }
+
+  .status-dot.running {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .status-sync.syncing .wicon {
+    animation: none;
+  }
+
+  .neon-live,
+  .neon-live::after {
+    animation: none;
+  }
+
+  .neon-live {
+    background:
+      linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+      var(--grad-ai) border-box !important;
+  }
+
+  .neon-live::after {
+    display: none;
+  }
+
+  .claude-think-run {
+    stroke-dasharray: none;
+    filter: none;
+  }
+
+  .claude-think-label,
+  .claude-think-label.rotating {
+    background: none;
+    color: var(--ink-muted);
+    animation: none;
+  }
+
+  .claude-empty-panel .claude-empty-mark::after {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .claude-tab-wrap.active.running::after,
+  .workspace-tab.running,
+  .workspace-tab.running:hover {
+    animation: none;
+    background:
+      linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+      var(--grad-ai) border-box;
+  }
+
+  .workspace-tab.running::after {
+    display: none;
+  }
+
+  .workspace-tab {
+    transition: none;
+  }
+
+  .workspace-tab.attention,
+  .workspace-tab.attention:hover,
+  .workspace-tab.attention.active,
+  .workspace-tab.attention.active:hover {
+    animation: none;
+    box-shadow: 0 0 8px 0 color-mix(in srgb, var(--warning) 45%, transparent);
+  }
+
+  .status-dot.attention {
+    animation: none;
+  }
+
+  .workspace-tab,
+  .workspace-tab.entering,
+  .workspace-tab-unread,
+  .workspace-tab-unread.pop {
+    animation: none;
+  }
+
+  .button-primary::after {
+    display: none;
+  }
+}

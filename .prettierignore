@@ -1,0 +1,12 @@
+node_modules/
+out/
+dist/
+test-results/
+playwright-report/
+coverage/
+pnpm-lock.yaml
+*.tsbuildinfo
+.claude/
+*.md
+# Exported from the design tool.
+docs/design-system/

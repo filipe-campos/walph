@@ -1,0 +1,770 @@
+/* ---------- Panel / Terminal ---------- */
+
+.panel-container {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.panel-container[hidden] {
+  display: none;
+}
+
+.main.panel-right .panel-container {
+  flex-direction: row;
+}
+
+/* Maximized: takes the whole main area (the inline height/width does not apply). */
+.panel-container.maximized {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.panel {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-100);
+}
+
+.panel-header {
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0 var(--space-1) 0 var(--space-2);
+  background: var(--bg-200);
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.panel-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.panel-header .actions {
+  flex-shrink: 0;
+}
+
+/* Narrow panel (on the right): the tabs shrink with ellipsis and the actions wrap to another line when space runs out.
+   */
+.main.panel-right .panel-header {
+  height: auto;
+  min-height: 32px;
+  flex-wrap: wrap;
+  row-gap: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.main.panel-right .panel-header.term-head {
+  height: 32px;
+  min-height: 32px;
+  flex-wrap: nowrap;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.main.panel-right .panel-tabs {
+  flex: 1 1 0;
+}
+
+.main.panel-right .panel-tab {
+  min-width: 0;
+}
+
+/* The label is what truncates (the inline-flex button has no text of its own for the ellipsis). */
+.panel-tab-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.panel-tab:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.panel-tab.active,
+.panel-tab.active:hover {
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.panel-tab .codicon {
+  font-size: 16px;
+}
+
+.panel-tab .count-badge {
+  margin-left: 2px;
+}
+
+/* Terminal view header (design system Terminal): tabs, "+" right after the last one, gap, path and branch. Reacts to
+   the width of the panel ITSELF (container `wp-term` on `.panel`), not the window's: the panel lives in a split. */
+.panel-header.term-head {
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.term-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.term-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.term-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 180px;
+  height: 24px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font: 500 12px/16px var(--font-sans);
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.term-tab .wicon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.term-tab-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.term-tab:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.term-tab-active,
+.term-tab-active:hover {
+  flex: none;
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.term-add {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin-left: -4px;
+}
+
+.term-add .wicon {
+  width: 14px;
+  height: 14px;
+}
+
+.term-spacer {
+  flex: 1;
+}
+
+.term-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 55%;
+  color: var(--ink-muted);
+  font: 400 12px/16px var(--font-mono);
+  white-space: nowrap;
+}
+
+.term-cwd {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Upper folders dimmed, cut from the start (rtl); the project name in full. The LRM marks keep the trailing slash. */
+.term-cwd-parent {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+  color: var(--ink-faint);
+}
+
+.term-cwd-leaf {
+  flex: none;
+  color: var(--ink-muted);
+}
+
+.term-branch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  /* The path gives up space first: the branch only truncates past ~24 columns. */
+  flex: 0 0 auto;
+  max-width: 24ch;
+  color: var(--accent);
+}
+
+.term-branch .wicon {
+  width: 12px;
+  height: 12px;
+  flex: none;
+}
+
+.term-branch-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel {
+  container: wp-term / inline-size;
+}
+
+/* ≤ 560px: the path becomes just the last folder; inactive tabs show only the icon (the name goes to the tooltip). */
+@container wp-term (max-width: 560px) {
+  .term-cwd-parent {
+    display: none;
+  }
+
+  .term-cwd {
+    flex: none;
+  }
+
+  .term-tab:not(.term-tab-active) .term-tab-label {
+    display: none;
+  }
+
+  .term-tab:not(.term-tab-active) {
+    padding: 0 6px;
+  }
+}
+
+/* ≤ 400px: the branch becomes just the icon (name in the tooltip); denser body. */
+@container wp-term (max-width: 400px) {
+  .term-branch-label {
+    display: none;
+  }
+
+  .terminal-pane {
+    padding: 6px 0 0 var(--space-3);
+  }
+}
+
+/* ≤ 260px: the header keeps only the tabs and the "+". */
+@container wp-term (max-width: 260px) {
+  .term-meta {
+    display: none;
+  }
+}
+
+.panel-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* Each panel view (Problems, Output, Terminal) stays mounted and is hidden with `hidden`. */
+.panel-pane {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-pane[hidden] {
+  display: none;
+}
+
+.terminal-views {
+  height: 100%;
+  display: flex;
+  /* The container background only shows in the 1px gap between split panes. */
+  gap: 1px;
+  background: var(--line);
+}
+
+.terminal-pane {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  box-sizing: border-box;
+  padding: var(--space-2) 0 0 var(--space-4);
+  background: var(--bg-100);
+}
+
+/* Focused pane inside a split group. */
+.terminal-pane.focused {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.terminal-view {
+  height: 100%;
+  width: 100%;
+}
+
+.terminal-view .xterm {
+  height: 100%;
+}
+
+/* The height is rarely an exact multiple of the line; the remainder must have the panel color. */
+.terminal-view .xterm,
+.terminal-view .xterm-viewport {
+  background-color: var(--bg-100) !important;
+}
+
+/* Terminal search: small widget in the top right corner of the panel. */
+.terminal-find {
+  position: absolute;
+  top: 6px;
+  right: 14px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.terminal-find-input {
+  width: 160px;
+  height: 24px;
+  padding: 0 6px;
+  font: inherit;
+}
+
+.terminal-find-status {
+  min-width: 64px;
+  padding: 0 6px;
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.terminal-find-status.none {
+  color: var(--danger);
+}
+
+/* Search in the Claude session: same widget as the terminal, in the top right corner of the list. */
+.claude-find {
+  position: absolute;
+  top: 6px;
+  right: 18px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.claude-find-input {
+  width: 160px;
+  height: 24px;
+  padding: 0 6px;
+  font: inherit;
+}
+
+.claude-find-status {
+  min-width: 64px;
+  padding: 0 6px;
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.claude-find-status.none {
+  color: var(--danger);
+}
+
+/* Search highlights (CSS Custom Highlight API): the current one is stronger than the others. */
+::highlight(claude-find) {
+  background-color: var(--accent-soft);
+  color: var(--ink);
+}
+
+::highlight(claude-find-current) {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Editor find (components/editor/findPanel.ts): the CodeMirror panel becomes a floating widget in the top right corner,
+   like VS Code's, and does not push the text. Same look as .terminal-find, wider. */
+.cm-editor .cm-panels.cm-panels-top {
+  position: absolute;
+  top: 6px;
+  right: 20px;
+  left: auto;
+  z-index: 6;
+  width: auto;
+  max-width: calc(100% - 28px);
+  background: none;
+  border: 0;
+  pointer-events: none;
+}
+
+/* Other top panels (go to line) stay clickable; only the empty space of the find widget lets clicks through. */
+.cm-editor .cm-panels.cm-panels-top > .cm-panel {
+  pointer-events: auto;
+}
+.cm-editor .cm-panels.cm-panels-top > .cm-panel:has(.walph-find) {
+  pointer-events: none;
+}
+
+.walph-find {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  width: 440px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--font-sans);
+  font-size: var(--ui-font-size);
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.walph-find .find-rows {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.walph-find .find-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.walph-find .find-row[hidden] {
+  display: none;
+}
+
+.walph-find .find-input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--bg-100);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+
+.walph-find .find-input::placeholder {
+  color: var(--ink-faint);
+}
+
+.walph-find .find-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.walph-find .find-input.invalid {
+  border-color: var(--danger);
+}
+
+.walph-find .find-button {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--ink-muted);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.walph-find .find-button:hover {
+  color: var(--ink);
+  background: var(--bg-400);
+}
+
+.walph-find .find-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -1px;
+}
+
+.walph-find .find-button[aria-pressed='true'] {
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* Left chevron: aligned with the first line, as tall as the field. */
+.walph-find .find-expand {
+  height: 28px;
+  width: 20px;
+}
+
+.walph-find .find-status {
+  flex: none;
+  min-width: 76px;
+  padding: 0 6px;
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.walph-find .find-status.none {
+  color: var(--danger);
+}
+
+/* Terminal tab being edited (rename). */
+.terminal-rename-input {
+  width: 120px;
+  height: 20px;
+  padding: 0 4px;
+  border-color: var(--accent);
+  font: inherit;
+}
+
+/* Hint on hovering a terminal link. */
+.terminal-link-hint {
+  position: fixed;
+  z-index: 100;
+  padding: 2px 8px;
+  font-size: var(--text-caption);
+  color: var(--ink);
+  background: var(--bg-300);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-pop);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.terminal-link-hint[hidden] {
+  display: none;
+}
+
+/* ---------- Problems and Output ---------- */
+
+.problems,
+.output-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline: none;
+}
+
+.problems {
+  padding: var(--space-1) 6px;
+}
+
+.problem-group,
+.problem-item {
+  user-select: none;
+}
+
+.problem-group .tree-label {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.problem-item {
+  padding-left: 30px;
+}
+
+.problem-group,
+.problem-item {
+  padding-right: 12px;
+}
+
+.problem-group:focus-visible,
+.problem-item:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.problem-group .count-badge {
+  margin-left: 6px;
+}
+
+.problem-dir {
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.problem-icon.error {
+  color: var(--diagnostic-error);
+}
+
+.problem-icon.warning {
+  color: var(--diagnostic-warning);
+}
+
+.problem-icon.info {
+  color: var(--diagnostic-info);
+}
+
+.problem-source,
+.problem-position {
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.output-panel {
+  padding: var(--space-1) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: 18px;
+  user-select: text;
+}
+
+.output-line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.output-time,
+.output-server {
+  color: var(--ink-faint);
+}
+
+.output-line.error .output-text {
+  color: var(--danger);
+}
+
+.output-line.warning .output-text {
+  color: var(--warning);
+}
+
+.output-toolbar {
+  position: absolute;
+  top: 4px;
+  right: 18px;
+}
+
+.output-empty {
+  padding: var(--space-2) var(--space-4);
+  color: var(--ink-muted);
+}
+
+/* Hierarchy view (calls / types). */
+.hierarchy {
+  display: flex;
+  flex-direction: column;
+}
+
+.hierarchy-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.hierarchy-bar .references-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.hierarchy-directions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.hierarchy-directions .toggle {
+  width: auto;
+  padding: 0 var(--space-2);
+  font-size: var(--text-caption);
+}
+
+.hierarchy-tree {
+  outline: none;
+}
+
+.hierarchy-row,
+.hierarchy-status {
+  user-select: none;
+}
+
+.hierarchy-twistie {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.hierarchy-icon {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+}
+
+.hierarchy-file {
+  margin-left: auto;
+}

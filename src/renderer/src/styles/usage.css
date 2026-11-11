@@ -1,0 +1,137 @@
+/* ---------- Uso do Claude (/usage) ---------- */
+
+.modal.usage-modal {
+  width: 560px;
+  max-width: 100%;
+  max-height: min(640px, calc(100% - 32px));
+}
+
+.usage-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+.usage-body:focus {
+  outline: none;
+}
+
+.usage-account {
+  margin: 0 0 var(--space-2);
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.usage-title {
+  margin: var(--space-4) 0 var(--space-2);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.usage-note {
+  margin: 0;
+}
+
+.usage-row {
+  padding: var(--space-2) 0;
+}
+
+.usage-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.usage-label {
+  font-weight: 500;
+}
+
+.usage-figures {
+  color: var(--ink);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.usage-bar {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--bg-400);
+}
+
+.usage-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--duration-base) var(--ease-standard);
+}
+
+.usage-bar.warning > span {
+  background: var(--warning);
+}
+
+.usage-bar.danger > span {
+  background: var(--danger);
+}
+
+.usage-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.usage-facts dt {
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+}
+
+.usage-facts dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-added {
+  color: var(--success);
+}
+
+.usage-removed {
+  color: var(--danger);
+}
+
+.usage-models {
+  width: 100%;
+  margin-top: var(--space-3);
+  border-collapse: collapse;
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.usage-models th,
+.usage-models td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.usage-models thead th {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.usage-models th:first-child {
+  padding-left: 0;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-weight: 400;
+}

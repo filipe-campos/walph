@@ -1,0 +1,318 @@
+/* ---------- Claude Code panel (secondary sidebar) ---------- */
+
+.tab-row > .tab-bar {
+  flex: 1;
+  min-width: 0;
+}
+
+.tab-row-spacer {
+  flex: 1;
+}
+
+.editor-actions {
+  flex-shrink: 0;
+  align-self: center;
+  margin-top: -4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 var(--space-1);
+}
+
+.editor-actions .icon-button {
+  width: 26px;
+  height: 26px;
+}
+
+.claude-sidebar {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg-200);
+}
+
+.claude-sidebar[hidden] {
+  display: none;
+}
+
+.claude-panel {
+  container: wp-cl / inline-size;
+  isolation: isolate;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tools to the right of the tabs: +, star (jumps with a pop when turned on) and ⋯. 24px, 15px icons. */
+.claude-header .actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.claude-header .actions .icon-button {
+  width: 24px;
+  height: 24px;
+}
+
+.claude-header .actions .icon-button .wicon {
+  width: 15px;
+  height: 15px;
+}
+
+/* High/full context: the usage summary lives in the menu; the dot on ⋯ warns without taking a bar. */
+.claude-more {
+  position: relative;
+}
+
+.claude-more.context-high::after,
+.claude-more.context-full::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--warning);
+  box-shadow: 0 0 0 2px var(--bg-200);
+}
+
+.claude-more.context-full::after {
+  background: var(--danger);
+}
+
+/* Top bar: Claude mark, session tabs and actions; accent halo in the corner, behind the mark. */
+.claude-header {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border-bottom: 1px solid var(--line);
+  background: radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 65%);
+}
+
+.claude-mark {
+  width: 28px;
+  height: 28px;
+  margin-right: var(--space-1);
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-200));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+  transition: box-shadow var(--duration-base) var(--ease-standard);
+}
+
+.claude-mark.live {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 14px -2px var(--accent-glow);
+}
+
+.claude-tabs {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.claude-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Visual wrapper of the tab: the `role=tab` (.claude-tab) and the × sit side by side, the × outside the tab (ARIA). */
+.claude-tab-wrap {
+  position: relative;
+  height: 28px;
+  min-width: 96px;
+  max-width: 188px;
+  flex: 0 1 auto;
+  overflow: hidden;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  padding-right: 2px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+  cursor: pointer;
+  animation: tab-in var(--duration-base) var(--ease-out);
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+/* The tab itself: fills the whole wrapper (except the ×), with dot, star, label and counter. */
+.claude-tab {
+  min-width: 0;
+  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* 2px --grad-brand stroke at the top of the active tab (same as the editor tab). */
+.claude-tab-wrap::after {
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 0;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--grad-brand);
+  transform: scaleX(0);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.claude-tab:focus-visible {
+  outline-offset: 1px;
+}
+
+.claude-tab-wrap:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-tab-wrap.active,
+.claude-tab-wrap.active:hover {
+  flex: none;
+  background: var(--bg-300);
+  color: var(--ink);
+}
+
+.claude-tab-wrap.active::after {
+  transform: scaleX(1);
+}
+
+/* Active session running: the stroke becomes a neon rail, with a comet running from left to right. */
+.claude-tab-wrap.active.running::after {
+  background:
+    linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--accent-2) 35%,
+        var(--accent) 65%,
+        var(--accent-3) 92%,
+        transparent 100%
+      )
+      no-repeat,
+    color-mix(in srgb, var(--accent) 28%, transparent);
+  background-size:
+    55% 100%,
+    100% 100%;
+  box-shadow: 0 0 8px var(--accent-glow);
+  animation: underline-run calc(var(--duration-trace) / 2.4) linear infinite;
+}
+
+.claude-tab-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-tab-star {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  color: var(--accent);
+}
+
+.claude-tab-star path {
+  fill: currentColor;
+}
+
+/* Inline rename: the field takes the label's place, with the app's standard focus. */
+.claude-tab-input {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.claude-tab-wrap:has(.claude-tab-input) {
+  flex: 1 1 140px;
+  max-width: 220px;
+  user-select: text;
+}
+
+/* Unread counter (design system `.wp-count`): 16px pill with a pop and an expanding pulse; the color follows the
+   session status. */
+.claude-tab-unread {
+  --count-c: var(--accent);
+  flex: none;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  display: inline-grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--count-c);
+  color: var(--on-accent);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  line-height: 16px;
+  animation:
+    badge-pop var(--duration-base) var(--ease-out),
+    claude-count-pulse var(--duration-pulse) var(--ease-out) var(--duration-base) infinite;
+}
+
+.claude-tab[data-status='done'] .claude-tab-unread {
+  --count-c: var(--success);
+}
+
+.claude-tab[data-status='attention'] .claude-tab-unread {
+  --count-c: var(--warning);
+}
+
+.claude-tab[data-status='error'] .claude-tab-unread {
+  --count-c: var(--danger);
+}
+
+@keyframes claude-count-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--count-c) 65%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--count-c) 0%, transparent);
+  }
+}
+
+.claude-tab-wrap .tab-close {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* The × shows on hover, with focus inside the tab or on the active tab. */
+.claude-tab-wrap:hover .claude-tab-close,
+.claude-tab-wrap:focus-within .claude-tab-close,
+.claude-tab-wrap.active .claude-tab-close {
+  opacity: 1;
+}

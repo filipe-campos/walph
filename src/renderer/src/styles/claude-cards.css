@@ -1,0 +1,466 @@
+/* Permission request: bg-300 card with a warning outline (it is the AI asking for something, not an error alert). */
+.claude-card,
+.claude-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--bg-300);
+  box-shadow: inset 0 0 0 1px var(--warning);
+}
+
+/* Plan: static gradient border (AI result), with the diffuse glow underneath. */
+.claude-card.plan {
+  --neon-fill: var(--bg-300);
+  border: 1px solid transparent;
+  background:
+    var(--grad-surface) padding-box,
+    linear-gradient(var(--neon-fill), var(--neon-fill)) padding-box,
+    var(--grad-ring) border-box;
+  box-shadow: var(--shadow-neon);
+}
+
+.claude-banner {
+  margin: 0 var(--space-3) var(--space-2);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.claude-banner[role='alert'] {
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+
+.claude-banner-text {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.claude-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.claude-card-title .codicon-shield {
+  color: var(--warning);
+}
+
+.claude-card.plan .claude-card-title .codicon {
+  color: var(--accent);
+}
+
+.claude-card-text {
+  overflow-wrap: anywhere;
+}
+
+.claude-card-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: left;
+  color: var(--ink-muted);
+}
+
+.claude-card-input {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  resize: vertical;
+}
+
+.claude-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.claude-plan {
+  max-height: 320px;
+  overflow: auto;
+  padding: 6px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg-100);
+}
+
+.segmented.claude-segments {
+  display: flex;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.claude-segments .segmented-item {
+  flex: 1;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-instant) var(--ease-standard);
+}
+
+.claude-segments .segmented-item.on {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+/* Claude questions (AskUserQuestion, design system ClaudeQuestion): it is the AI waiting for you, not an alert, so a
+   static gradient border (`.neon`) with shadow-neon instead of the warning outline of the other cards. */
+.claude-card.claude-question {
+  --neon-fill: var(--bg-300);
+  box-shadow: var(--shadow-neon);
+}
+
+.claude-question-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.claude-question-ico {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+
+.claude-question-ico .wicon {
+  width: 14px;
+  height: 14px;
+}
+
+.claude-question-kicker {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Design system "x" (18px), always visible. */
+.claude-question-skip {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  color: var(--ink-muted);
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+.claude-question-skip:hover:not(:disabled) {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-question-skip .wicon {
+  width: 12px;
+  height: 12px;
+}
+
+.claude-question-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* Question pill: bg-200 with a line ring; number in a 16px circle. */
+.claude-question-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  max-width: 100%;
+  padding: 0 var(--space-2) 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-200);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: 16px;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.claude-question-step-n {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--bg-400);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.claude-question-step-n .wicon {
+  width: 16px;
+  height: 16px;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.claude-question-step-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-question:focus {
+  outline: none;
+}
+
+.claude-question-tab:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-question-tab.answered .claude-question-step-n {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.claude-question-tab.active,
+.claude-question-tab.active:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.claude-question-tab.active .claude-question-step-n {
+  background: var(--grad-brand);
+  color: var(--on-accent);
+}
+
+.claude-question-tab.answered.active .claude-question-step-n {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.claude-question-tab:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* Switching questions: the text and the options rise 4px. */
+.claude-question-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.claude-question-text {
+  color: var(--ink);
+  font-size: calc(var(--ui-font-size) * 14 / 13);
+  font-weight: 600;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.claude-question-hint {
+  margin-top: -6px;
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.claude-question-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.claude-question-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--bg-200);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink);
+  font-size: var(--ui-font-size);
+  line-height: 20px;
+  text-align: left;
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+button.claude-question-row:hover,
+.claude-question-other:hover {
+  background: var(--bg-400);
+}
+
+button.claude-question-row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+button.claude-question-row.selected,
+button.claude-question-row.selected:hover,
+.claude-question-other.selected,
+.claude-question-other.selected:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-200));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* Mark: round (single) or square (multiple); when checked, fills with --grad-brand and pops. */
+.claude-question-mark {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1.5px var(--line-strong);
+  color: var(--on-accent);
+}
+
+.claude-question-option.multi .claude-question-mark,
+.claude-question-other-toggle.multi .claude-question-mark {
+  border-radius: 4px;
+}
+
+.claude-question-mark .wicon {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.5px;
+}
+
+.claude-question-row.selected .claude-question-mark {
+  background: var(--grad-brand);
+  box-shadow: none;
+  animation: badge-pop var(--duration-base) var(--ease-out);
+}
+
+.claude-question-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.claude-question-label,
+.claude-question-desc {
+  overflow-wrap: anywhere;
+}
+
+.claude-question-label {
+  font-weight: 500;
+}
+
+.claude-question-desc {
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+/* Key number (1–9): the design system `.wp-kbd`. */
+.claude-question-key {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  line-height: 16px;
+}
+
+.claude-question-other {
+  align-items: center;
+  cursor: text;
+}
+
+.claude-question-other .claude-question-mark {
+  margin-top: 0;
+}
+
+.claude-question-other-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  color: var(--ink);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.claude-question-other-toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The "Other" field has no box: it is plain text inside the row. */
+.claude-question-other .claude-card-input {
+  flex: 1;
+  min-width: 0;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+  font-size: var(--ui-font-size);
+  line-height: 20px;
+}
+
+.claude-question-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.claude-question-keys {
+  flex: 1;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 14px;
+}
+
+.claude-question-count {
+  flex: 1;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 14px;
+}
+
+.claude-question-footer .claude-card-actions {
+  margin-left: auto;
+}

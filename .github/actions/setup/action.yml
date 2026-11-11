@@ -1,0 +1,33 @@
+# pnpm + Node with cache + project dependencies; on Linux also what Electron needs to open a window (Xvfb).
+name: Setup
+description: Installs pnpm, Node and the dependencies; on Linux sets up Xvfb and the Chromium sandbox.
+inputs:
+  electron-display:
+    description: On Linux, installs Xvfb and the Chromium libs and allows the sandbox (jobs that open the app).
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+        cache: pnpm
+
+    - name: System dependencies
+      if: runner.os == 'Linux' && inputs.electron-display == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends xvfb libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1 libasound2t64
+
+    # Ubuntu 24.04 blocks unprivileged user namespaces (AppArmor) and the Chromium sandbox aborts; allow them on the
+    # runner instead of running the app with --no-sandbox.
+    - name: Allow the Chromium sandbox
+      if: runner.os == 'Linux' && inputs.electron-display == 'true'
+      shell: bash
+      run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+    - shell: bash
+      run: pnpm install --frozen-lockfile

@@ -1,0 +1,32 @@
+/*
+ * Walph: renderer styles, following the Walph design system ("Tech Premium AI"): layered matte surfaces
+ * (`bg-000` window/bars → `bg-100` editor/terminal → `bg-200` sidebar/panels → `bg-300` elevated → `bg-400` hover)
+ * and light (cyan→blue→indigo gradients, neon line) only where there is AI, focus or the primary action.
+ * Colors only through tokens (`themes/types.ts`); the `:root` values in `styles/tokens.css` are Walph Dark for the
+ * first paint.
+ */
+
+/* The import order is the cascade order: a later file overrides the previous one at the same specificity. */
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/controls.css';
+@import './styles/workbench.css';
+@import './styles/editor.css';
+@import './styles/git-editor.css';
+@import './styles/welcome.css';
+@import './styles/panel.css';
+@import './styles/statusbar.css';
+@import './styles/overlays.css';
+@import './styles/tabs.css';
+@import './styles/claude-tabs.css';
+@import './styles/claude-timeline.css';
+@import './styles/claude-cards.css';
+@import './styles/claude-prompt.css';
+@import './styles/claude-panels.css';
+@import './styles/settings.css';
+@import './styles/mcp.css';
+@import './styles/usage.css';
+@import './styles/containers.css';
+@import './styles/debug.css';
+@import './styles/claude-events.css';
+@import './styles/motion.css';

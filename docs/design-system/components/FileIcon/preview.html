@@ -1,0 +1,75 @@
+<!-- @dsCard group="Editor" page height=760 subtitle="File and folder icon theme: color and symbol by file type and folder name. Search a name to see the icon it gets" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>File and folder icons</title>
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  body { background: var(--bg-100); color: var(--ink); font-family: var(--font-sans); }
+  .wrap { display: grid; grid-template-columns: 280px 1fr; height: 100%; }
+  .tree { background: var(--bg-200); border-right: 1px solid var(--line); padding: var(--space-2) var(--space-1); overflow: auto; }
+  .cap { font: 500 11px/14px var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-muted); padding: 6px 8px 8px; }
+  .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .bar { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--line); }
+  .bar .wp-input { flex: 1; max-width: 360px; }
+  .seg { display: inline-flex; padding: 2px; border-radius: var(--radius-md); background: var(--bg-200); box-shadow: inset 0 0 0 1px var(--line); }
+  .seg button { border: 0; background: transparent; color: var(--ink-muted); font: 500 12px/16px var(--font-sans); padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--bg-400); color: var(--ink); }
+  .count { font: 400 11px/14px var(--font-mono); color: var(--ink-faint); margin-left: auto; }
+  .probe { display: flex; align-items: center; gap: 8px; padding: 8px var(--space-4); border-bottom: 1px solid var(--line); font: 400 12px/16px var(--font-mono); color: var(--ink-muted); }
+  .probe b { color: var(--ink); font-weight: 500; }
+  .grid { flex: 1; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px; padding: var(--space-3) var(--space-4); align-content: start; }
+  .cell { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 8px; border-radius: var(--radius-sm); font: 400 12px/16px var(--font-mono); color: var(--ink-muted); min-width: 0; }
+  .cell:hover { background: var(--bg-300); color: var(--ink); }
+  .cell span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fold { display: flex; align-items: center; gap: 10px; min-height: 30px; padding: 4px 8px; border-radius: var(--radius-sm); font: 400 12px/16px var(--font-mono); color: var(--ink-muted); grid-column: span 2; }
+  .fold:hover { background: var(--bg-300); }
+  .fold .names { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fold .names b { color: var(--ink); font-weight: 500; }
+  .pair { display: flex; gap: 4px; flex: none; }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var W = window.Walph, h = React.createElement, D = W.fileIcons;
+  var files = [];
+  Object.keys(D.names).forEach(function (n) { files.push(n === 'dockerfile' || n === 'makefile' || n === 'procfile' || n === 'jenkinsfile' || n === 'gemfile' || n === 'license' || n === 'readme' ? n.charAt(0).toUpperCase() + n.slice(1) : n); });
+  D.suffixes.forEach(function (s) { files.push('index' + s[0]); });
+  Object.keys(D.extensions).forEach(function (e) { files.push('file.' + e); });
+  var TREE = [
+    ['.claude', 1, 0, true], ['commands', 1, 1], ['CLAUDE.md', 0, 1], ['.github', 1, 0], ['.vscode', 1, 0], ['src', 1, 0, true],
+    ['api', 1, 1], ['components', 1, 1, true], ['Button.tsx', 0, 2], ['Button.stories.tsx', 0, 2], ['Button.module.css', 0, 2], ['Button.test.tsx', 0, 2],
+    ['hooks', 1, 1], ['services', 1, 1, true], ['invoice.service.ts', 0, 2], ['invoice.controller.ts', 0, 2], ['invoice.entity.ts', 0, 2], ['create-invoice.dto.ts', 0, 2], ['invoice.module.ts', 0, 2],
+    ['utils', 1, 1], ['styles', 1, 1], ['types', 1, 1], ['i18n', 1, 1], ['assets', 1, 1], ['migrations', 1, 0], ['test', 1, 0], ['docs', 1, 0], ['scripts', 1, 0], ['docker', 1, 0], ['infra', 1, 0], ['public', 1, 0], ['dist', 1, 0], ['node_modules', 1, 0],
+    ['.env', 0, 0], ['.env.example', 0, 0], ['.gitignore', 0, 0], ['.prettierrc', 0, 0], ['docker-compose.yml', 0, 0], ['Dockerfile', 0, 0], ['eslint.config.js', 0, 0], ['package.json', 0, 0], ['pnpm-lock.yaml', 0, 0],
+    ['README.md', 0, 0], ['LICENSE', 0, 0], ['tsconfig.json', 0, 0], ['vite.config.ts', 0, 0], ['schema.prisma', 0, 0]
+  ];
+  function App() {
+    var t = React.useState('files'), tab = t[0], setTab = t[1];
+    var q = React.useState(''), query = q[0], setQuery = q[1];
+    var sel = React.useState('invoice.service.ts'), s = sel[0], setS = sel[1];
+    var ql = query.trim().toLowerCase();
+    var probeName = query.trim();
+    var shownFiles = files.filter(function (f) { return !ql || f.toLowerCase().indexOf(ql) >= 0; });
+    var shownFolders = D.folders.filter(function (f) { return !ql || f.slice(2).some(function (n) { return n.indexOf(ql) >= 0; }); });
+    return h('div', { className: 'wrap' },
+      h('div', { className: 'tree', role: 'tree' }, h('div', { className: 'cap' }, 'Explorador · billing-api'),
+        TREE.map(function (r) { return h(W.TreeItem, { key: r[0] + r[2], label: r[0], kind: r[1] ? 'folder' : 'file', depth: r[2], open: !!r[3], selected: s === r[0], onClick: function () { setS(r[0]); } }); })),
+      h('div', { className: 'main' },
+        h('div', { className: 'bar' },
+          h('div', { className: 'seg', role: 'group' },
+            h('button', { 'aria-pressed': tab === 'files', onClick: function () { setTab('files'); } }, 'Files · ' + files.length),
+            h('button', { 'aria-pressed': tab === 'folders', onClick: function () { setTab('folders'); } }, 'Folders · ' + D.folders.length + ' categories')),
+          h(W.Input, { icon: 'search', placeholder: 'Try a name: invoice.dto.ts, migrations, .env.prod…', value: query, onChange: function (e) { setQuery(e.target.value); } }),
+          h('span', { className: 'count' }, (tab === 'files' ? shownFiles.length : shownFolders.length) + ' results')),
+        probeName ? h('div', { className: 'probe' }, 'as a file', h(W.FileIcon, { name: probeName }), h('b', null, probeName), '· as a folder', h(W.FileIcon, { name: probeName, kind: 'folder' }), h(W.FileIcon, { name: probeName, kind: 'folder', open: true })) : null,
+        h('div', { className: 'grid' }, tab === 'files' ? shownFiles.map(function (f) {
+          return h('div', { key: f, className: 'cell', title: f }, h(W.FileIcon, { name: f }), h('span', null, f));
+        }) : shownFolders.map(function (f, i) {
+          return h('div', { key: i, className: 'fold' }, h('div', { className: 'pair' }, h(W.FileIcon, { name: f[2], kind: 'folder' }), h(W.FileIcon, { name: f[2], kind: 'folder', open: true })),
+            h('span', { className: 'names', title: f.slice(2).join(', ') }, h('b', null, f[2]), ' ' + f.slice(3).join(' · ')));
+        }))));
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+</script>
+</body>
+</html>

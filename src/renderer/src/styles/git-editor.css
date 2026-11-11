@@ -1,0 +1,196 @@
+/* Git in the editor: merge conflicts, per-hunk actions (gutter and diff), blame (line, gutter, hover) and the Source
+   Control merge-in-progress strip. */
+
+/* Conflicts: current in green, incoming in blue, diff3 base neutral; markers one shade stronger. */
+.cm-merge-current {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+}
+
+.cm-merge-current-marker {
+  background: color-mix(in srgb, var(--success) 24%, transparent);
+}
+
+.cm-merge-incoming {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.cm-merge-incoming-marker {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.cm-merge-base {
+  background: color-mix(in srgb, var(--ink-faint) 10%, transparent);
+}
+
+.cm-merge-separator {
+  background: var(--bg-300);
+}
+
+.cm-merge-label {
+  margin-left: 1ch;
+  color: var(--ink-faint);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+}
+
+.cm-merge-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-2);
+  padding: 2px 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+}
+
+.cm-merge-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cm-merge-action:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.cm-merge-action:focus-visible {
+  outline: 1px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* Hunk menu opened from the gutter: the items are buttons instead of the `div`s of the LSP menu. */
+.hunk-menu .lsp-menu-item {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cm-git-gutter .cm-gutterElement:is(.cm-git-added, .cm-git-modified, .cm-git-deleted) {
+  cursor: pointer;
+}
+
+/* Per-hunk buttons on the right side of the diff. */
+.cm-diff-hunk-gutter .cm-gutterElement {
+  padding: 0 2px;
+}
+
+.cm-diff-hunk-actions {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.cm-diff-hunk-action {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cm-diff-hunk-action:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+/* Blame at the end of the cursor line. */
+.cm-blame-inline {
+  margin-left: 3ch;
+  color: var(--ink-faint);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-style: italic;
+  white-space: pre;
+  opacity: 0.85;
+}
+
+.blame-hover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.blame-hover-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.blame-hover-meta {
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.blame-hover-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.blame-hover-action {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.blame-hover-action:hover {
+  text-decoration: underline;
+}
+
+/* Gutter with the blame of the whole file. The width is on the entry, not on `.cm-gutterElement`: the active line
+   marker creates an element in every gutter and would open the gutter even with blame turned off. */
+.cm-blame-gutter .cm-blame-entry {
+  display: block;
+  width: 30ch;
+  padding: 0 var(--space-2);
+  overflow: hidden;
+  color: var(--ink-faint);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cm-blame-entry.cm-blame-first {
+  color: var(--ink-muted);
+}
+
+/* Merge/rebase in progress in Source Control. */
+.git-operation-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--warning-soft);
+  color: var(--ink);
+  font-size: var(--text-label);
+}
+
+.git-operation-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.status-blame {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

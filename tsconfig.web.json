@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@renderer/*": ["./src/renderer/src/*"],
+      // The package `exports` does not declare `types`: in `bundler` mode TS would not find the declarations.
+      "emmet": ["./node_modules/emmet/dist/index.d.ts"]
+    }
+  },
+  "include": ["src/renderer/src/**/*", "src/preload/index.d.ts", "src/shared/**/*"],
+  // src/shared tests run in Node (project `node`); the renderer ones live in tsconfig.web.test.json.
+  "exclude": [
+    "src/shared/**/*.test.ts",
+    "src/renderer/src/**/*.test.ts",
+    "src/renderer/src/**/*.test.tsx",
+    "src/renderer/src/test/**"
+  ]
+}

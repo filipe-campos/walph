@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Walph: a desktop IDE with Claude Code built in</title>
+    <meta
+      name="description"
+      content="Walph is a fast, keyboard-first desktop IDE with Claude Code built in. Editor, LSP, Git, search, terminal and containers in one window. Free and open source for macOS, Windows and Linux."
+    />
+    <meta name="theme-color" content="#0a090f" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="canonical" href="https://filipe-campos.github.io/walph/" />
+
+    <link rel="icon" href="assets/walph-symbol.svg" type="image/svg+xml" />
+    <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Walph" />
+    <meta property="og:title" content="Walph: a desktop IDE with Claude Code built in" />
+    <meta
+      property="og:description"
+      content="Editor, terminal, Git and the Claude Code agent side by side, in one fast window. Free and open source for macOS, Windows and Linux."
+    />
+    <meta property="og:url" content="https://filipe-campos.github.io/walph/" />
+    <meta property="og:image" content="https://filipe-campos.github.io/walph/assets/social-preview.png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:alt" content="Walph logo and the tagline A desktop IDE with Claude Code built in" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Walph: a desktop IDE with Claude Code built in" />
+    <meta
+      name="twitter:description"
+      content="Editor, terminal, Git and the Claude Code agent side by side, in one fast window. Free and open source."
+    />
+    <meta name="twitter:image" content="https://filipe-campos.github.io/walph/assets/social-preview.png" />
+    <meta name="twitter:image:alt" content="Walph logo and the tagline A desktop IDE with Claude Code built in" />
+
+    <link rel="preload" href="assets/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="./" aria-label="Walph home">
+          <img src="assets/walph-logo.svg" alt="Walph" width="114" height="28" />
+        </a>
+        <nav class="nav" aria-label="Main">
+          <a href="#features">Features</a>
+          <a href="#download">Download</a>
+          <a href="#support">Support</a>
+          <a class="nav-github" href="https://github.com/filipe-campos/walph">
+            <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+              />
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="container hero-inner">
+          <p class="eyebrow">Free and open source</p>
+          <h1>A desktop IDE with <span class="grad">Claude Code</span> built in</h1>
+          <p class="lead">
+            Walph puts the Claude Code agent right next to your editor, terminal and Git. It sees your diagnostics and
+            selection, proposes edits as diffs you accept or reject, and keeps working in background workspaces while
+            you move on.
+          </p>
+
+          <div class="downloads" id="download">
+            <a class="button button-primary" href="https://github.com/filipe-campos/walph/releases/latest">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M16.37 12.6c-.02-2.3 1.88-3.4 1.97-3.46-1.07-1.57-2.74-1.78-3.33-1.8-1.42-.14-2.77.83-3.49.83-.72 0-1.83-.81-3.01-.79-1.55.02-2.98.9-3.77 2.28-1.61 2.79-.41 6.92 1.16 9.18.77 1.11 1.68 2.35 2.87 2.31 1.15-.05 1.59-.75 2.98-.75 1.39 0 1.78.75 3 .72 1.24-.02 2.02-1.12 2.78-2.24.88-1.29 1.24-2.53 1.26-2.6-.03-.01-2.4-.92-2.42-3.68zM14.08 5.85c.63-.77 1.06-1.83.94-2.89-.91.04-2.02.61-2.67 1.37-.59.68-1.1 1.76-.96 2.8 1.01.08 2.05-.52 2.69-1.28z"
+                />
+              </svg>
+              Download for macOS
+            </a>
+            <a class="button" href="https://github.com/filipe-campos/walph/releases/latest">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M3 5.1 10.4 4v7.2H3zm0 13.8 7.4 1.1v-7.1H3zm8.2 1.2L21 21.5v-8.6h-9.8zm0-16.2v7.3H21V2.5z"
+                />
+              </svg>
+              Windows
+            </a>
+            <a class="button" href="https://github.com/filipe-campos/walph/releases/latest">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 2c-2.2 0-3.6 1.9-3.6 4.6 0 1.3.3 2.2-.4 3.4-.8 1.4-2.8 3.3-3.3 5.6-.3 1.3.1 2.3.8 2.6.4.2.8 0 1.2.4.6.6 1 1.4 2.4 1.4.9 0 1.6-.5 2.1-.9.4-.3 1.3-.3 1.7 0 .5.4 1.2.9 2.1.9 1.4 0 1.8-.8 2.4-1.4.4-.4.8-.2 1.2-.4.7-.3 1.1-1.3.8-2.6-.5-2.3-2.5-4.2-3.3-5.6-.7-1.2-.4-2.1-.4-3.4C15.6 3.9 14.2 2 12 2zm-1.6 4.1c.4 0 .7.5.7 1.1 0 .6-.3 1.1-.7 1.1-.4 0-.7-.5-.7-1.1 0-.6.3-1.1.7-1.1zm3.2 0c.4 0 .7.5.7 1.1 0 .6-.3 1.1-.7 1.1-.4 0-.7-.5-.7-1.1 0-.6.3-1.1.7-1.1zM12 9c.9 0 2 .6 2 1s-1.1 1.2-2 1.2-2-.8-2-1.2.9-1 2-1z"
+                />
+              </svg>
+              Linux
+            </a>
+          </div>
+          <p class="fine-print">
+            macOS (Apple silicon), Windows installer and Linux (AppImage, deb). The agent panel uses your own Claude
+            account or Anthropic API key; everything else works without it. The interface is in Brazilian Portuguese.
+          </p>
+        </div>
+
+        <div class="container">
+          <figure class="hero-shot">
+            <img
+              src="assets/hero.jpg"
+              width="2400"
+              height="1500"
+              alt="Walph with a TypeScript file open, the file explorer, the terminal and the Claude Code panel side by side"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section class="features" id="features" aria-labelledby="features-title">
+        <div class="container">
+          <h2 id="features-title">Everything in one window</h2>
+          <p class="section-lead">
+            A complete, cross-platform IDE built from scratch around the way you work with an agent, and it stays out of
+            your way.
+          </p>
+
+          <div class="grid">
+            <article class="card card-ai">
+              <h3>Claude Code panel</h3>
+              <p>
+                Streaming conversations, inline permission prompts, edits as side by side diffs with Accept and Reject,
+                sessions as tabs, checkpoints to rewind, and an <code>/mcp</code> server manager.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Workspaces, not windows</h3>
+              <p>
+                Open many folders as tabs in a single window. Each one keeps its own editors, terminals, language
+                servers and Claude sessions, and idle ones hibernate.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Editor with LSP</h3>
+              <p>
+                CodeMirror 6 with split groups, minimap and git gutter. TypeScript built in, any other language server
+                via settings: completion, hover, rename, references and code actions.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Git, done right</h3>
+              <p>
+                Stage, commit, amend, branches, stash, history with diffs, pull, push and sync. Clone a repository
+                straight into a new workspace.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Integrated terminal</h3>
+              <p>
+                Real shells with xterm.js and node-pty, split terminals, profiles, in-terminal find, and
+                <code>file:line</code> links that open in the editor.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Fast search and replace</h3>
+              <p>
+                Project-wide search powered by ripgrep, with regex, include and exclude globs, and safe replace across
+                files that respects their encoding.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Containers</h3>
+              <p>
+                Docker containers grouped by Compose project, with logs, ports and stats, start, stop and restart, and
+                Investigate with Claude for a crash-looping container.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Keyboard first</h3>
+              <p>
+                A unified command palette, quick open, chords and <code>when</code> clauses, and settings in JSONC with
+                user and workspace layers.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Secure by default</h3>
+              <p>
+                Sandboxed renderer, no shell strings, deletes go to the trash and every write is atomic. Updates arrive
+                automatically on every platform.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="showcase" aria-label="Screenshots">
+        <div class="container showcase-grid">
+          <figure class="shot">
+            <img
+              src="assets/claude-panel.jpg"
+              width="1080"
+              height="1912"
+              loading="lazy"
+              alt="The Claude Code panel reading, editing and testing files, with a summary of the changed files"
+            />
+            <figcaption>
+              The agent reads, edits and runs your tests, then lists every changed file to review.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <img
+              src="assets/git.jpg"
+              width="1600"
+              height="900"
+              loading="lazy"
+              alt="The Git view with staged and unstaged changes, the commit history and a side by side diff"
+            />
+            <figcaption>Staged and unstaged changes, history and side by side diffs, next to your terminal.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="support" id="support" aria-labelledby="support-title">
+        <div class="container">
+          <div class="support-card">
+            <div>
+              <h2 id="support-title">Support Walph</h2>
+              <p>
+                Walph is free, MIT licensed and built in the open by one developer. If it saves you time, sponsoring
+                keeps it fast, maintained and independent.
+              </p>
+            </div>
+            <div class="support-actions">
+              <a class="button button-primary" href="https://github.com/sponsors/filipe-campos">
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M8 14.25s-6.5-3.9-6.5-8.06A3.44 3.44 0 0 1 5 2.75c1.27 0 2.36.7 3 1.72a3.53 3.53 0 0 1 3-1.72 3.44 3.44 0 0 1 3.5 3.44C14.5 10.35 8 14.25 8 14.25z"
+                  />
+                </svg>
+                Sponsor on GitHub
+              </a>
+              <a class="button" href="https://github.com/filipe-campos/walph">Star the repository</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img src="assets/walph-symbol.svg" alt="" width="30" height="20" />
+          <span
+            >Walph is released under the
+            <a href="https://github.com/filipe-campos/walph/blob/main/LICENSE">MIT License</a>.</span
+          >
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="https://github.com/filipe-campos/walph">GitHub</a>
+          <a href="https://github.com/filipe-campos/walph/releases">Releases</a>
+          <a href="https://github.com/filipe-campos/walph/issues">Issues</a>
+          <a href="https://github.com/sponsors/filipe-campos">Sponsor</a>
+        </nav>
+        <p class="disclaimer">
+          Not affiliated with Anthropic. Claude and Claude Code are trademarks of Anthropic, PBC.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

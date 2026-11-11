@@ -1,0 +1,284 @@
+/* ---------- Servidores MCP (/mcp) ---------- */
+
+.modal.mcp-modal {
+  width: 640px;
+  max-width: 100%;
+  height: min(560px, calc(100% - 32px));
+}
+
+.mcp-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+.mcp-stale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: var(--text-label);
+}
+
+.mcp-body:focus {
+  outline: none;
+}
+
+.mcp-group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-1);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mcp-server {
+  border-bottom: 1px solid var(--line);
+}
+
+.mcp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 36px;
+}
+
+.mcp-expand {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  text-align: left;
+}
+
+.mcp-expand:hover {
+  background: var(--bg-400);
+}
+
+.mcp-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.mcp-status,
+.mcp-tools-count {
+  flex: none;
+  font-size: var(--text-label);
+  color: var(--ink-muted);
+}
+
+.mcp-tools-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+}
+
+.mcp-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mcp-confirm-text {
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.mcp-detail,
+.mcp-auth {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2) var(--space-3) 28px;
+}
+
+.mcp-auth-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mcp-auth-row .mcp-input {
+  flex: 1;
+}
+
+.mcp-props {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  font-size: var(--text-label);
+}
+
+.mcp-props dt {
+  color: var(--ink-muted);
+}
+
+.mcp-props dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mcp-props dd.mono,
+.mcp-input.mono,
+.mcp-tool-name {
+  font-family: var(--font-mono);
+}
+
+.mcp-tools-title {
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mcp-tools {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.mcp-tool {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 22px;
+  font-size: var(--text-label);
+}
+
+.mcp-tool-name {
+  flex: none;
+}
+
+.mcp-tool-desc {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-muted);
+}
+
+.setting-badge.mcp-badge-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.mcp-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.mcp-form-title {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+
+.mcp-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.mcp-input {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-label);
+}
+
+textarea.mcp-input {
+  height: auto;
+  padding: var(--space-2) var(--space-3);
+  resize: vertical;
+}
+
+.mcp-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.mcp-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.shortcuts-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.shortcuts-intro {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.shortcuts-category {
+  margin: var(--space-4) 0 var(--space-1);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.shortcuts-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shortcut-row {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-label);
+}
+
+.shortcut-keys {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.shortcut-key {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-100);
+  color: var(--ink-muted);
+  font-size: var(--text-caption);
+  line-height: 18px;
+}

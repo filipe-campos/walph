@@ -1,0 +1,652 @@
+/* Last message pinned to the top: the message stays in the flow at full height and the sentinel (1px, at its top)
+   signals when it left the top; the compact copy shows up in a zero-height sticky strip, so scrolling does not change.
+   */
+.claude-pinned-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.claude-pinned-prompt {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Zero height: the negative margin cancels the timeline `gap`, the strip takes no space. */
+.claude-pinned-bar {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: 0;
+  margin-bottom: calc(-1 * var(--space-3));
+}
+
+/* The bg-200 fade hides what passes underneath and the bubble, with a shadow, sits on top of it. */
+.claude-pinned-overlay {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--space-4));
+  right: calc(-1 * var(--space-4));
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  background: linear-gradient(var(--bg-200) 62%, transparent);
+  cursor: pointer;
+}
+
+.claude-pinned-goto {
+  align-self: center;
+  margin-right: var(--space-1);
+  transform: rotate(-90deg);
+}
+
+.claude-pinned-overlay .claude-user {
+  box-shadow:
+    0 6px 18px -10px var(--scrim),
+    inset 0 0 0 1px var(--line);
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.claude-pinned-overlay:hover .claude-user {
+  box-shadow:
+    0 6px 18px -10px var(--scrim),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.claude-pinned-overlay .claude-user-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Turn summary: changed files with +N −N and "Review" (git diff). */
+.claude-summary {
+  --neon-fill: var(--bg-200);
+  padding: var(--space-2) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--bg-200);
+}
+
+.claude-summary-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-label);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.claude-summary-title .wicon {
+  color: var(--success);
+}
+
+.claude-summary-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.claude-summary-row {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.claude-summary-name {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.claude-summary-counts {
+  display: inline-flex;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.claude-summary-added {
+  color: var(--success);
+}
+
+.claude-summary-removed {
+  color: var(--danger);
+}
+
+/* Agents strip above the prompt box. */
+/* Favorite commands (design system `.wp-cl-favs`): bg-300 strip above the field with accent icons on bg-200; the "+"
+   panel opens upwards at the strip width. */
+.claude-favs {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0 var(--space-3) var(--space-2);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-300);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.claude-fav-item {
+  position: relative;
+  flex: none;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+/* Drag: the others slide and the dragged one disappears, leaving the slot (the class only applies after the drag
+   snapshot). */
+.claude-fav-item.dragging {
+  visibility: hidden;
+}
+
+.claude-favs.settling .claude-fav-item {
+  transition: none;
+}
+
+.claude-favbtn {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background: var(--bg-200);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--accent);
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    box-shadow var(--duration-instant) var(--ease-standard),
+    transform var(--duration-instant) var(--ease-standard);
+}
+
+.claude-favbtn .wicon {
+  width: 15px;
+  height: 15px;
+}
+
+.claude-favbtn:hover {
+  background: var(--accent-soft);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 12px -4px var(--accent-glow);
+}
+
+.claude-favbtn:active {
+  transform: scale(0.94);
+}
+
+.claude-favbtn:focus-visible,
+.claude-fav-x:focus-visible,
+.claude-favicon:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* Dashed "+". */
+.claude-favbtn.add {
+  background: transparent;
+  box-shadow: none;
+  border: 1px dashed var(--line-strong);
+  color: var(--ink-muted);
+}
+
+.claude-favbtn.add:hover,
+.claude-favbtn.add.on {
+  background: var(--bg-400);
+  border-color: var(--ink-faint);
+  box-shadow: none;
+  color: var(--ink);
+}
+
+.claude-favbtn.preview {
+  width: 26px;
+  height: 26px;
+}
+
+.claude-favbtn.preview:hover {
+  background: var(--bg-200);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* "x" in the corner, only on hover (or with keyboard focus). */
+.claude-fav-x {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 15px;
+  height: 15px;
+  display: none;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  background: var(--bg-400);
+  box-shadow: 0 0 0 2px var(--bg-300);
+  color: var(--ink-muted);
+}
+
+.claude-fav-x .wicon {
+  width: 9px;
+  height: 9px;
+}
+
+.claude-fav-x:hover {
+  background: var(--danger);
+  color: var(--on-accent);
+}
+
+.claude-fav-item:hover .claude-fav-x,
+.claude-fav-x:focus-visible {
+  display: grid;
+}
+
+.claude-favs-hint {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 var(--space-2);
+  color: var(--ink-faint);
+  font-size: var(--text-caption);
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-favpop {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 6px);
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--bg-300);
+  box-shadow: var(--shadow-pop);
+  transform-origin: bottom left;
+  animation: rise-in var(--duration-base) var(--ease-out);
+}
+
+.claude-favlist {
+  max-height: 168px;
+  overflow: auto;
+}
+
+.claude-favnote {
+  margin: 0;
+  padding: var(--space-1) var(--space-2) var(--space-2);
+  color: var(--ink-faint);
+  font-size: var(--text-label);
+}
+
+.claude-favsep {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--line);
+}
+
+.claude-favicons {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  padding: 2px var(--space-1) var(--space-1);
+  /* More than 40 icons: scrolls instead of pushing the commands list out of the panel. */
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.claude-favicon {
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  transition:
+    background-color var(--duration-instant) var(--ease-standard),
+    color var(--duration-instant) var(--ease-standard);
+}
+
+.claude-favicon .wicon {
+  width: 15px;
+  height: 15px;
+}
+
+.claude-favicon:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-favicon.on {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent);
+}
+
+.claude-favfoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-1) 2px;
+  border-top: 1px solid var(--line);
+}
+
+.claude-favpreview {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+}
+
+.claude-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+}
+
+.claude-agents {
+  flex-shrink: 0;
+  margin: 0 var(--space-3) var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--bg-200);
+}
+
+.claude-agents-head {
+  width: 100%;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+  font-weight: 500;
+  text-align: left;
+}
+
+.claude-agents-head:hover {
+  color: var(--ink);
+}
+
+.claude-agents-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.claude-agents-title {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.claude-agents-chev {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--ink-faint);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.claude-agents-chev.open {
+  transform: rotate(90deg);
+}
+
+.claude-agents-list {
+  max-height: 132px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0 var(--space-1) var(--space-1);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.claude-agent {
+  --neon-fill: var(--bg-200);
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label);
+}
+
+.claude-agent-name {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink);
+}
+
+.claude-agent-task {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-muted);
+}
+
+.claude-agent-time {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--ink-muted);
+}
+
+.claude-agent-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  border-radius: var(--radius-pill);
+}
+
+.claude-agent-dot.stopped {
+  border: 1.5px solid var(--ink-faint);
+}
+
+.claude-agent-icon {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 0 2px;
+}
+
+.claude-agent-icon.done {
+  color: var(--success);
+}
+
+.claude-agent-icon.failed {
+  color: var(--danger);
+}
+
+.claude-history-star {
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  vertical-align: -1px;
+  color: var(--accent);
+}
+
+.claude-history-star path {
+  fill: currentColor;
+}
+
+/* Conversation history */
+
+.claude-history {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-200);
+  animation: fade-in var(--duration-fast) var(--ease-standard);
+}
+
+.claude-history-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+}
+
+.claude-history-head input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+.claude-history-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 6px;
+}
+
+.claude-history-item {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: background-color var(--duration-instant) var(--ease-standard);
+}
+
+.claude-history-item:hover {
+  background: var(--bg-400);
+}
+
+.claude-history-meta {
+  font-size: var(--text-caption);
+}
+
+/* Accept / Reject in the diff of the proposed edit */
+
+.claude-proposal {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px var(--space-3);
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(60% 200% at 0% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%),
+    var(--bg-200);
+}
+
+.claude-proposal:focus {
+  outline: none;
+}
+
+.claude-proposal > span {
+  flex: 1;
+}
+
+.claude-proposal input {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 6px;
+}
+
+/* Editor file/snippet that came with the message. */
+.claude-context-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  margin-bottom: var(--space-1);
+  padding: 1px var(--space-2) 1px var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--bg-200);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  line-height: 16px;
+  transition: background-color var(--duration-instant) var(--ease-standard);
+}
+
+.claude-context-chip:hover {
+  background: var(--bg-400);
+  color: var(--ink);
+}
+
+.claude-context-chip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.claude-context-chip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Notice of a finished background task (not user speech): neutral row; a failure becomes a warning. */
+.claude-task-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
+
+.claude-task-notice > span:not(.claude-msg-time) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.claude-task-notice.problem {
+  color: var(--warning);
+}
+
+/* Session starting: in place of the field that has no response yet. */
+.claude-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 var(--space-3) var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--bg-300);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-muted);
+  font-size: var(--text-label);
+}
